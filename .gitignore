@@ -1,0 +1,8 @@
+.depend
+tags
+oggquiz
+*.o
+*.[Bb][Aa][Kk]
+*.core
+*.gz
+*.swp

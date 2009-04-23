@@ -1,0 +1,19 @@
+PROG=           oggquiz
+SRCS=           ${PROG}.c oggfile.c player.c ui.c
+
+NO_MAN=         yes
+
+CLEANFILES=     *.[Bb][Aa][Kk] *.core
+
+CFLAGS+=        -Wall --ansi --pedantic
+CFLAGS+=        -I/usr/local/include
+LDFLAGS+=       -L/usr/local/lib 
+LDADD+=         -lvorbisfile
+LDADD+=         -liconv
+
+CTAGS=          ctags
+
+indent: .PHONY
+	find . -type f -name '*.[c,h]' | xargs -n 1 indent
+
+.include <bsd.prog.mk>
