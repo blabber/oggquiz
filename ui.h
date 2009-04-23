@@ -16,6 +16,9 @@ typedef struct {
         oggfile_t      *oggfiles;
         oggfile_t      *guess;
         oggfile_t      *correct;
+        int             turn;
+        int             scores[PLAYERS];
+        int             current_player;
 }               ui_model_t;
 
 void            ui_display_quiz(ui_model_t * model);

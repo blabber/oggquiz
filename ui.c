@@ -41,6 +41,9 @@ ui_display_quiz(ui_model_t * model)
 void
 ui_display_result(ui_model_t * model)
 {
+        int             i;
+        char            mark;
+
         if (model->correct == model->guess)
                 printf("\nYou are right!\n");
         else {
@@ -51,6 +54,14 @@ ui_display_result(ui_model_t * model)
 
         printf("\nYou are listening to:\n");
         print_oggfile(model->correct);
+        puts("\nScoreboard:\n");
+        for (i = 0; i < PLAYERS; i++) {
+                if (i == model->current_player)
+                        mark = '*';
+                else
+                        mark = ' ';
+                printf("%c  Player %d: %5d %c\n", mark, i + 1, model->scores[i], mark);
+        }
         puts("");
 }
 

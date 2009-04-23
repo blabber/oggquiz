@@ -52,27 +52,37 @@ main(int argc, char **argv)
 static int
 new_turn(oggfile_t * oggfiles)
 {
-        static int      rpg_initialized = 0;
+        static int      first_invocation = 0;
+        static ui_model_t model;
         int             correct;
         char            guess;
-        ui_model_t      model;
+        time_t          start;
 
-        if (!rpg_initialized) {
-                rpg_initialized = 1;
+        if (!first_invocation) {
+                first_invocation = 1;
                 srand(time(NULL));
+                /* abusing the correct variable as a temporary variable */
+                for (correct = 0; correct < CHOICES; correct++) {
+                        model.scores[correct] = 0;
+                        model.turn = 0;
+                }
         }
+        model.turn++;
+        model.current_player = ((model.turn - 1) % PLAYERS);
         model.oggfiles = oggfiles;
         correct = rand() % 4;
         model.correct = &oggfiles[correct];
         ui_display_quiz(&model);
         player_play(model.correct);
+        start = time(NULL);
         guess = ui_get_answer();
         if (guess == 'q')
                 return 1;
         model.guess = &oggfiles[guess - '1'];
         if (model.guess == model.correct)
-                /* TODO:  scoring */
-                puts("debug: right guess");
+                model.scores[model.current_player] += min(TIMEOUT, time(NULL) - start);
+        else
+                model.scores[model.current_player] += TIMEOUT;
         ui_display_result(&model);
         ui_pause();
         return 0;
