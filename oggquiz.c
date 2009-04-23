@@ -53,26 +53,27 @@ static int
 new_turn(oggfile_t * oggfiles)
 {
         static int      rpg_initialized = 0;
-        int             answer;
+        int             correct;
         char            guess;
-        ui_result_t     result;
+        ui_model_t      model;
 
         if (!rpg_initialized) {
                 rpg_initialized = 1;
                 srand(time(NULL));
         }
-        answer = rand() % 4;
-        ui_display_quiz(oggfiles);
-        player_play(&oggfiles[answer]);
+        model.oggfiles = oggfiles;
+        correct = rand() % 4;
+        model.correct = &oggfiles[correct];
+        ui_display_quiz(&model);
+        player_play(model.correct);
         guess = ui_get_answer();
         if (guess == 'q')
                 return 1;
-        result.correct = &oggfiles[answer];
-        result.guess = &oggfiles[guess - '1'];
-        if (result.guess == result.correct)
+        model.guess = &oggfiles[guess - '1'];
+        if (model.guess == model.correct)
                 /* TODO:  scoring */
                 puts("debug: right guess");
-        ui_display_result(&result);
+        ui_display_result(&model);
         ui_pause();
         return 0;
 }

@@ -26,31 +26,31 @@ ui_setup()
 }
 
 void
-ui_display_quiz(oggfile_t * oggfiles)
+ui_display_quiz(ui_model_t * model)
 {
         int             i;
 
         printf("Next turn:\n");
         for (i = 0; i < CHOICES; i++) {
-                printf("%d.  %s\n", i + 1, oggfiles[i].artist);
-                printf("    %s\n", oggfiles[i].album);
-                printf("    %s\n\n", oggfiles[i].title);
+                printf("%d.  %s\n", i + 1, model->oggfiles[i].artist);
+                printf("    %s\n", model->oggfiles[i].album);
+                printf("    %s\n\n", model->oggfiles[i].title);
         }
 }
 
 void
-ui_display_result(ui_result_t * result)
+ui_display_result(ui_model_t * model)
 {
-        if (result->correct == result->guess)
+        if (model->correct == model->guess)
                 printf("\nYou are right!\n");
         else {
                 printf("\nSorry, you are wrong!\n");
                 printf("\nYour guess:\n");
-                print_oggfile(result->guess);
+                print_oggfile(model->guess);
         }
 
         printf("\nYou are listening to:\n");
-        print_oggfile(result->correct);
+        print_oggfile(model->correct);
         puts("");
 }
 

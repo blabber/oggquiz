@@ -15,6 +15,8 @@
 #define TITLELEN        128
 
 #define CHOICES         4
+#define PLAYERS         4
+
 #define ENCODING        "ISO-8859-15"
 #define OGG123          "/usr/local/bin/ogg123"
 
