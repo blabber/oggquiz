@@ -30,7 +30,11 @@ ui_display_quiz(ui_model_t * model)
 {
         int             i;
 
-        printf("Next turn:\n");
+        puts("+-----------+-------------------+-------------------+");
+        printf("| Next turn | current turn: %3d | current player: %d |\n",
+               model->turn, model->current_player + 1);
+        puts("+-----------+-------------------+-------------------+\n");
+
         for (i = 0; i < CHOICES; i++) {
                 printf("%d.  %s\n", i + 1, model->oggfiles[i].artist);
                 printf("    %s\n", model->oggfiles[i].album);
