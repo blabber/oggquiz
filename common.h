@@ -21,8 +21,10 @@
 #define ENCODING        "ISO-8859-15"
 #define OGG123          "/usr/local/bin/ogg123"
 
-#define safe_strncpy(dst, src, len)     strncpy(dst, src, (len)-1); \
-                                        dst[(len)-1] = '\0';
+#define safe_strncpy(dst, src, len)     { \
+                                        strncpy(dst, src, (len)-1); \
+                                        dst[(len)-1] = '\0'; \
+                                        }
 
 #define min(a, b)                       ((a) < (b)) ? a : b
 #endif
