@@ -10,11 +10,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <err.h>
+#include "oggquiz.h"
 #include "common.h"
 #include "ui.h"
 
 static void     print_oggfile(oggfile_t * oggfile);
 
+extern options_t options;
 static int      tty = -1;
 
 void
@@ -35,7 +37,7 @@ ui_display_quiz(ui_model_t * model)
                model->turn, model->current_player + 1);
         puts("+-----------+-------------------+-------------------+\n");
 
-        for (i = 0; i < CHOICES; i++) {
+        for (i = 0; i < options.choices; i++) {
                 printf("%d.  %s\n", i + 1, model->oggfiles[i].artist);
                 printf("    %s\n", model->oggfiles[i].album);
                 printf("    %s\n\n", model->oggfiles[i].title);
@@ -59,7 +61,7 @@ ui_display_result(ui_model_t * model)
         printf("\nYou are listening to:\n");
         print_oggfile(model->correct);
         puts("\nScoreboard:\n");
-        for (i = 0; i < PLAYERS; i++) {
+        for (i = 0; i < options.players; i++) {
                 if (i == model->current_player)
                         mark = '*';
                 else
@@ -75,12 +77,12 @@ ui_get_answer()
         int             answer;
         char            canswer;
 
-        printf("What are you listening to? (1-%d, 'q' to quit)\n", CHOICES);
+        printf("What are you listening to? (1-%d, 'q' to quit)\n", options.choices);
         for (;;) {
                 if (read(tty, &answer, 2) == -1)
                         err(1, "could not read from /dev/tty");
                 canswer = (char)answer;
-                if (canswer == 'q' || (canswer >= '1' && canswer <= '0' + CHOICES))
+                if (canswer == 'q' || (canswer >= '1' && canswer <= '0' + options.choices))
                         break;
         }
         return canswer;

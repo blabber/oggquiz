@@ -13,7 +13,9 @@
 #include "common.h"
 #include "oggfile.h"
 #include "player.h"
+#include "oggquiz.h"
 
+extern options_t options;
 static pid_t    pid = (pid_t) (-1);
 
 void
@@ -25,7 +27,8 @@ player_play(oggfile_t * oggfile)
 
         switch (lpid = fork()) {
         case (0):
-                execl(OGG123, "ogg123", "-q", oggfile->filename, NULL);
+                execl(options.ogg123, "ogg123", "-q", oggfile->filename, NULL);
+                err(1, "could not exec %s", options.ogg123);
         case (-1):
                 err(1, "could not fork player");
         default:
