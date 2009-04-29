@@ -22,10 +22,11 @@
 
 #define ENCODING        "ISO-8859-15"
 
-#define safe_strncpy(dst, src, len)     { \
+#define SAFE_STRNCPY(dst, src, len)     { \
                                         strncpy(dst, src, (len)-1); \
                                         dst[(len)-1] = '\0'; \
                                         }
 
-#define min(a, b)                       ((a) < (b)) ? a : b
+#define MIN(a, b)                       ((a) < (b)) ? a : b
+
 #endif

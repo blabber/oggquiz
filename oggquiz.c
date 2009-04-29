@@ -91,7 +91,7 @@ new_turn(oggfile_t * oggfiles)
                 return 1;
         model.guess = &oggfiles[guess - '1'];
         if (model.guess == model.correct)
-                model.scores[model.current_player] += min(options.time, time(NULL) - start);
+                model.scores[model.current_player] += MIN(options.time, time(NULL) - start);
         else
                 model.scores[model.current_player] += options.time;
         ui_display_result(&model);
@@ -105,8 +105,8 @@ init_options()
         options.time = TIMEOUT;
         options.choices = CHOICES;
         options.players = PLAYERS;
-        safe_strncpy(options.ogg123, OGG123, OPTIONLEN);
-        safe_strncpy(options.encoding, ENCODING, OPTIONLEN);
+        SAFE_STRNCPY(options.ogg123, OGG123, OPTIONLEN);
+        SAFE_STRNCPY(options.encoding, ENCODING, OPTIONLEN);
 }
 
 static void
@@ -141,12 +141,12 @@ parse_options(int argc, char **argv)
                 case 'o':
                         if (strlen(optarg) >= OPTIONLEN)
                                 errx(1, "length of argument 'o' must not exceed %d bytes", OPTIONLEN);
-                        safe_strncpy(options.ogg123, optarg, OPTIONLEN);
+                        SAFE_STRNCPY(options.ogg123, optarg, OPTIONLEN);
                         break;
                 case 'e':
                         if (strlen(optarg) >= OPTIONLEN)
                                 errx(1, "length of argument 'e' must not exceed %d bytes", OPTIONLEN);
-                        safe_strncpy(options.encoding, optarg, OPTIONLEN);
+                        SAFE_STRNCPY(options.encoding, optarg, OPTIONLEN);
                         break;
                 default:
                 case 'h':

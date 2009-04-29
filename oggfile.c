@@ -21,7 +21,7 @@ static iconv_t  cd = NULL;
 int
 oggfile_create(oggfile_t * oggfile, char *filename)
 {
-        safe_strncpy(oggfile->filename, filename, FILENAMELEN);
+        SAFE_STRNCPY(oggfile->filename, filename, FILENAMELEN);
         /*
          * TODO: There should be a better way (somewhere in function convert)
          * to make sure that the struct fields are correctly terminated
