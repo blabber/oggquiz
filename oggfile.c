@@ -108,11 +108,7 @@ convert(char *in, char *out, size_t outlen)
                 errx(1, "could not set initial conversion state");
 
         while (inlen > 0) {
-                /*
-                 * XXX: Don't know why the compiler complains about an
-                 * incompatible pointer type for argument 2...
-                 */
-                if (iconv(cd, inp, &inlen, outp, &outlen) == (size_t) (-1))
+                if (iconv(cd, (const char **)inp, &inlen, outp, &outlen) == (size_t) (-1))
                         errx(1, "string conversion failed");
         }
 
