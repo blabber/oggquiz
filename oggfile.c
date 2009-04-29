@@ -15,7 +15,7 @@
 #include "oggquiz.h"
 
 /* Prototypes */
-static int      fill_comments(oggfile_t * oggfile);
+static int      fill_comments(oggfile_t *oggfile);
 static void     convert(char *in, char *out, size_t outlen);
 
 /* Global variables */
@@ -23,7 +23,7 @@ extern options_t options;
 static iconv_t  cd = NULL;
 
 int
-oggfile_create(oggfile_t * oggfile, char *filename)
+oggfile_create(oggfile_t *oggfile, char *filename)
 {
         SAFE_STRNCPY(oggfile->filename, filename, FILENAMELEN);
         /*
@@ -39,7 +39,7 @@ oggfile_create(oggfile_t * oggfile, char *filename)
 }
 
 static int
-fill_comments(oggfile_t * oggfile)
+fill_comments(oggfile_t *oggfile)
 {
         OggVorbis_File  ovf;
         vorbis_comment *ovc;

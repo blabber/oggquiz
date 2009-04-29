@@ -25,7 +25,7 @@
 
 /* Prototypes */
 static void     init_options();
-static int      new_turn(oggfile_t * oggfiles);
+static int      new_turn(oggfile_t *oggfiles);
 static void     parse_options(int argc, char **argv);
 
 /* Global variables */
@@ -71,7 +71,7 @@ main(int argc, char **argv)
 }
 
 static int
-new_turn(oggfile_t * oggfiles)
+new_turn(oggfile_t *oggfiles)
 {
         static int      first_invocation = 0;
         static ui_model_t model;

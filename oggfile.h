@@ -17,9 +17,9 @@ typedef struct {
         char            title[TITLELEN];
         char            filename[FILENAMELEN];
 
-}               oggfile_t;
+} oggfile_t;
 
-int             oggfile_create(oggfile_t * oggfile, char *filename);
+int             oggfile_create(oggfile_t *oggfile, char *filename);
 void            oggfile_setup();
 void            oggfile_teardown();
 

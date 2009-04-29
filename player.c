@@ -20,7 +20,7 @@ extern options_t options;
 static pid_t    pid = (pid_t) (-1);
 
 void
-player_play(oggfile_t * oggfile)
+player_play(oggfile_t *oggfile)
 {
         pid_t           lpid;
 

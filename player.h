@@ -11,7 +11,7 @@
 #ifndef _player_h_
 #define _player_h_
 
-void            player_play(oggfile_t * oggfile);
+void            player_play(oggfile_t *oggfile);
 void            player_stop();
 
 #endif

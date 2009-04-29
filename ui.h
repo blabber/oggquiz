@@ -19,10 +19,10 @@ typedef struct {
         int             turn;
         int             scores[PLAYERS];
         int             current_player;
-}               ui_model_t;
+} ui_model_t;
 
-void            ui_display_quiz(ui_model_t * model);
-void            ui_display_result(ui_model_t * model);
+void            ui_display_quiz(ui_model_t *model);
+void            ui_display_result(ui_model_t *model);
 char            ui_get_answer();
 void            ui_pause();
 void            ui_setup();

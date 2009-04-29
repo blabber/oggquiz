@@ -15,7 +15,7 @@
 #include "ui.h"
 
 /* Prototypes */
-static void     print_oggfile(oggfile_t * oggfile);
+static void     print_oggfile(oggfile_t *oggfile);
 
 /* Global variables */
 extern options_t options;
@@ -30,7 +30,7 @@ ui_setup()
 }
 
 void
-ui_display_quiz(ui_model_t * model)
+ui_display_quiz(ui_model_t *model)
 {
         int             i;
 
@@ -47,7 +47,7 @@ ui_display_quiz(ui_model_t * model)
 }
 
 void
-ui_display_result(ui_model_t * model)
+ui_display_result(ui_model_t *model)
 {
         int             i;
         char            mark;
@@ -115,7 +115,7 @@ ui_teardown()
 }
 
 static void
-print_oggfile(oggfile_t * oggfile)
+print_oggfile(oggfile_t *oggfile)
 {
         printf("  %s\n", oggfile->artist);
         printf("  %s\n", oggfile->album);

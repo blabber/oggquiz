@@ -1,1 +1,4 @@
 -nut
+-Tui_model_t
+-Toggfile_t
+-Toptions_t

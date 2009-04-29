@@ -21,7 +21,7 @@ typedef struct {
         int             players;
         char            ogg123[OPTIONLEN];
         char            encoding[OPTIONLEN];
-}               options_t;
+} options_t;
 
 #define PLAYERS         4
 
