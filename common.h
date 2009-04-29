@@ -15,13 +15,6 @@
 #define ALBUMLEN        128
 #define TITLELEN        128
 
-#define TIMEOUT         60
-#define CHOICES         4
-#define PLAYERS         4
-#define OGG123          "/usr/local/bin/ogg123"
-
-#define ENCODING        "ISO-8859-15"
-
 #define SAFE_STRNCPY(dst, src, len)     { \
                                         strncpy(dst, src, (len)-1); \
                                         dst[(len)-1] = '\0'; \

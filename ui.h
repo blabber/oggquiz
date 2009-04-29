@@ -6,7 +6,7 @@
  *                                                              Tobias Rehbein
  */
 
-#include "common.h"
+#include "oggquiz.h"
 #include "oggfile.h"
 
 #ifndef _ui_h_

@@ -18,6 +18,11 @@
 #include "player.h"
 #include "ui.h"
 
+#define TIMEOUT         60
+#define CHOICES         4
+#define OGG123          "/usr/local/bin/ogg123"
+#define ENCODING        "ISO-8859-15"
+
 /* prototypes */
 static void     init_options();
 static int      new_turn(oggfile_t * oggfiles);

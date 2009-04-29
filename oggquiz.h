@@ -19,4 +19,6 @@ typedef struct {
         char            encoding[OPTIONLEN];
 }               options_t;
 
+#define PLAYERS         4
+
 #endif

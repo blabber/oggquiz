@@ -12,10 +12,12 @@
 #include <iconv.h>
 #include "vorbis/vorbisfile.h"
 #include "oggfile.h"
+#include "oggquiz.h"
 
 static int      fill_comments(oggfile_t * oggfile);
 static void     convert(char *in, char *out, size_t outlen);
 
+extern options_t options;
 static iconv_t  cd = NULL;
 
 int
@@ -76,7 +78,7 @@ void
 oggfile_setup()
 {
         if (!cd)
-                if ((cd = iconv_open(ENCODING, "UTF-8")) == (iconv_t) (-1))
+                if ((cd = iconv_open(options.encoding, "UTF-8")) == (iconv_t) (-1))
                         errx(1, "could not open conversion descriptor");
 }
 
