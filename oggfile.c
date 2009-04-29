@@ -14,9 +14,11 @@
 #include "oggfile.h"
 #include "oggquiz.h"
 
+/* Prototypes */
 static int      fill_comments(oggfile_t * oggfile);
 static void     convert(char *in, char *out, size_t outlen);
 
+/* Global variables */
 extern options_t options;
 static iconv_t  cd = NULL;
 

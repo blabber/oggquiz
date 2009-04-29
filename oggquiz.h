@@ -11,6 +11,10 @@
 #ifndef _oggquiz_h_
 #define _oggquiz_h_
 
+/*
+ * The global options structure is considered read only! The only module
+ * allowed to modify it is oggquiz.c.
+ */
 typedef struct {
         int             time;
         int             choices;

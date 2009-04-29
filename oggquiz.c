@@ -23,11 +23,12 @@
 #define OGG123          "/usr/local/bin/ogg123"
 #define ENCODING        "ISO-8859-15"
 
-/* prototypes */
+/* Prototypes */
 static void     init_options();
 static int      new_turn(oggfile_t * oggfiles);
 static void     parse_options(int argc, char **argv);
 
+/* Global variables */
 options_t       options;
 
 int
@@ -40,6 +41,10 @@ main(int argc, char **argv)
 
         init_options();
         parse_options(argc, argv);
+        /*
+         * After this point the global options structure is considered read
+         * only!
+         */
 
         oggfile_setup();
         ui_setup();

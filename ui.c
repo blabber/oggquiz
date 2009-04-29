@@ -14,8 +14,10 @@
 #include "common.h"
 #include "ui.h"
 
+/* Prototypes */
 static void     print_oggfile(oggfile_t * oggfile);
 
+/* Global variables */
 extern options_t options;
 static int      tty = -1;
 

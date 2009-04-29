@@ -15,6 +15,7 @@
 #include "player.h"
 #include "oggquiz.h"
 
+/* Global variables */
 extern options_t options;
 static pid_t    pid = (pid_t) (-1);
 
