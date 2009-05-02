@@ -12,6 +12,7 @@
 #include <time.h>
 #include <getopt.h>
 #include <err.h>
+#include <locale.h>
 #include "oggquiz.h"
 #include "common.h"
 #include "oggfile.h"
@@ -21,7 +22,6 @@
 #define TIMEOUT         60
 #define CHOICES         4
 #define OGG123          "/usr/local/bin/ogg123"
-#define ENCODING        "ISO-8859-15"
 
 /* Prototypes */
 static void     init_options();
@@ -38,6 +38,9 @@ main(int argc, char **argv)
         char           *newline;
         int             oggfileno = 0;
         oggfile_t       oggfiles[CHOICES];
+
+        if (!setlocale(LC_ALL, ""))
+                warnx("could not set locale");
 
         init_options();
         parse_options(argc, argv);
@@ -116,7 +119,6 @@ init_options()
         options.choices = CHOICES;
         options.players = PLAYERS;
         SAFE_STRNCPY(options.ogg123, OGG123, OPTIONLEN);
-        SAFE_STRNCPY(options.encoding, ENCODING, OPTIONLEN);
 }
 
 static void
@@ -129,7 +131,6 @@ parse_options(int argc, char **argv)
                 {"choices", required_argument, NULL, 'c'},
                 {"players", required_argument, NULL, 'p'},
                 {"ogg123", required_argument, NULL, 'o'},
-                {"encoding", required_argument, NULL, 'e'},
                 {"help", no_argument, NULL, 'h'}
         };
 
@@ -153,15 +154,10 @@ parse_options(int argc, char **argv)
                                 errx(1, "length of argument 'o' must not exceed %d bytes", OPTIONLEN);
                         SAFE_STRNCPY(options.ogg123, optarg, OPTIONLEN);
                         break;
-                case 'e':
-                        if (strlen(optarg) >= OPTIONLEN)
-                                errx(1, "length of argument 'e' must not exceed %d bytes", OPTIONLEN);
-                        SAFE_STRNCPY(options.encoding, optarg, OPTIONLEN);
-                        break;
                 default:
                 case 'h':
                         puts("oggquiz [-t | --time seconds] [-c | --choices choices] [-p | --players players]");
-                        puts("        [-o | --ogg123 command] [-e | --encoding encoding]");
+                        puts("        [-o | --ogg123 command]");
                         puts("oggquiz {-h | --help}");
                         exit(0);
                 }

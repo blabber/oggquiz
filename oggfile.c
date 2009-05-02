@@ -26,13 +26,9 @@ int
 oggfile_create(oggfile_t *oggfile, char *filename)
 {
         SAFE_STRNCPY(oggfile->filename, filename, FILENAMELEN);
-        /*
-         * TODO: There should be a better way (somewhere in function convert)
-         * to make sure that the struct fields are correctly terminated
-         */
-        bzero(oggfile->artist, ARTISTLEN);
-        bzero(oggfile->album, ALBUMLEN);
-        bzero(oggfile->title, TITLELEN);
+        oggfile->artist[0] = '\0';
+        oggfile->album[0] = '\0';
+        oggfile->title[0] = '\0';
         if (fill_comments(oggfile))
                 return 1;
         return 0;
@@ -80,7 +76,7 @@ void
 oggfile_setup()
 {
         if (!cd)
-                if ((cd = iconv_open(options.encoding, "UTF-8")) == (iconv_t) (-1))
+                if ((cd = iconv_open("char", "UTF-8")) == (iconv_t) (-1))
                         errx(1, "could not open conversion descriptor");
 }
 
@@ -111,6 +107,8 @@ convert(char *in, char *out, size_t outlen)
                 if (iconv(cd, (const char **)inp, &inlen, outp, &outlen) == (size_t) (-1))
                         errx(1, "string conversion failed");
         }
+
+        *outp[0] = '\0';
 
         return;
 }
