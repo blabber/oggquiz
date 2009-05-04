@@ -10,7 +10,7 @@
 #include <string.h>
 #include <err.h>
 #include <iconv.h>
-#include "vorbis/vorbisfile.h"
+#include <vorbis/vorbisfile.h>
 #include "oggfile.h"
 #include "oggquiz.h"
 
