@@ -6,26 +6,24 @@
  *                                                              Tobias Rehbein
  */
 
-#include "oggquiz.h"
-#include "oggfile.h"
+/**
+ * Required includes:
+ * oggfile.h
+ * oggquiz.h
+ */
 
-#ifndef _ui_h_
-#define _ui_h_
-
-typedef struct {
-        oggfile_t      *oggfiles;
-        oggfile_t      *guess;
-        oggfile_t      *correct;
+struct ui_model {
+        struct oggfile *oggfiles;
+        struct oggfile *guess;
+        struct oggfile *correct;
         int             turn;
         int             scores[PLAYERS];
         int             current_player;
-} ui_model_t;
+};
 
-void            ui_display_quiz(ui_model_t *model);
-void            ui_display_result(ui_model_t *model);
-char            ui_get_answer();
-void            ui_pause();
-void            ui_setup();
-void            ui_teardown();
-
-#endif
+void            ui_display_quiz(struct ui_model *model, struct options *opts);
+void            ui_display_result(struct ui_model *model, struct options *opts);
+char            ui_get_answer(void);
+void            ui_pause(void);
+void            ui_setup(void);
+void            ui_teardown(void);

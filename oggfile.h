@@ -6,21 +6,18 @@
  *                                                              Tobias Rehbein
  */
 
-#include "common.h"
+/**
+ * Required includes:
+ * common.h
+ */
 
-#ifndef _oggfile_c_
-#define _oggfile_c_
-
-typedef struct {
+struct oggfile {
         char            artist[ARTISTLEN];
         char            album[ALBUMLEN];
         char            title[TITLELEN];
         char            filename[FILENAMELEN];
+};
 
-} oggfile_t;
-
-int             oggfile_create(oggfile_t *oggfile, char *filename);
-void            oggfile_setup();
-void            oggfile_teardown();
-
-#endif
+int             oggfile_create(struct oggfile *_oggfile, char *_filename);
+void            oggfile_setup(void);
+void            oggfile_teardown(void);

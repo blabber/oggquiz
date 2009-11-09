@@ -6,22 +6,22 @@
  *                                                              Tobias Rehbein
  */
 
-#include "common.h"
+/**
+ * Required includes:
+ * common.h
+ */
 
-#ifndef _oggquiz_h_
-#define _oggquiz_h_
+enum {
+        PLAYERS = 4
+};
 
 /*
  * The global options structure is considered read only! The only module
  * allowed to modify it is oggquiz.c.
  */
-typedef struct {
+struct options {
         int             time;
         int             choices;
         int             players;
         char            ogg123[OPTIONLEN];
-} options_t;
-
-#define PLAYERS         4
-
-#endif
+};

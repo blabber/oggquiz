@@ -6,118 +6,184 @@
  *                                                              Tobias Rehbein
  */
 
+#include <assert.h>
+#include <curses.h>
+#include <err.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <err.h>
-#include "oggquiz.h"
+
 #include "common.h"
+#include "oggfile.h"
+#include "oggquiz.h"
 #include "ui.h"
 
+#define RESETGUI()     do {                     \
+                                y = 0;          \
+                                clear();        \
+                        } while (0)
+
 /* Prototypes */
-static void     print_oggfile(oggfile_t *oggfile);
+static void     print_oggfile(struct oggfile *oggfile);
+static void     print_header(char const *step, struct ui_model *model);
 
 /* Global variables */
-extern options_t options;
-static int      tty = -1;
+static int      tty;
+static FILE    *ftty;
+static SCREEN  *term;
+static int      y;
 
 void
 ui_setup()
 {
-        if (tty == -1)
-                if ((tty = open("/dev/tty", O_RDONLY)) == -1)
-                        err(1, "could not open /dev/tty");
+        if ((tty = open("/dev/tty", O_RDONLY)) == -1)
+                err(1, "could not open /dev/tty");
+        if ((ftty = fopen("/dev/tty", "r")) == NULL)
+                err(1, "could not open /dev/tty");
+        if ((term = newterm(NULL, stdout, ftty)) == NULL)
+                errx(1, "could not create /dev/tty terminal");
+        if (initscr() == NULL)
+                errx(1, "could not initialize screen");
+        if (set_term(term) == NULL)
+                errx(1, "could not set /dev/tty terminal");
+        cbreak();
+        noecho();
+        start_color();
+        init_pair(1, COLOR_WHITE, COLOR_BLACK);
+        init_pair(2, COLOR_GREEN, COLOR_BLACK);
+        init_pair(3, COLOR_RED, COLOR_BLACK);
+        intrflush(stdscr, FALSE);
 }
 
 void
-ui_display_quiz(ui_model_t *model)
+ui_display_quiz(struct ui_model *model, struct options *opts)
 {
         int             i;
 
-        puts("+-----------+-------------------+-------------------+");
-        printf("| Next turn | current turn: %3d | current player: %d |\n",
-               model->turn, model->current_player + 1);
-        puts("+-----------+-------------------+-------------------+\n");
+        assert(model != NULL);
+        assert(opts != NULL);
 
-        for (i = 0; i < options.choices; i++) {
-                printf("%d.  %s\n", i + 1, model->oggfiles[i].artist);
-                printf("    %s\n", model->oggfiles[i].album);
-                printf("    %s\n\n", model->oggfiles[i].title);
+        RESETGUI();
+        print_header("new turn", model);
+
+        for (i = 0; i < opts->choices; i++) {
+                if (i % 2 == 1) {
+                        attron(A_BOLD);
+                } else
+                        attroff(A_BOLD);
+                mvprintw(y++, 1, "%d.  %s\n", i + 1, model->oggfiles[i].artist);
+                mvprintw(y++, 1, "    %s\n", model->oggfiles[i].album);
+                mvprintw(y++, 1, "    %s\n\n", model->oggfiles[i].title);
+                y++;
         }
+        attroff(A_BOLD);
+
+        attron(A_REVERSE);
+        mvprintw(y, 0, " What are you listening to? (1-%d, 'q' to quit) ", opts->choices);
+        attroff(A_REVERSE);
+
+        refresh();
 }
 
 void
-ui_display_result(ui_model_t *model)
+ui_display_result(struct ui_model *model, struct options *opts)
 {
         int             i;
-        char            mark;
 
-        if (model->correct == model->guess)
-                printf("\nYou are right!\n");
-        else {
-                printf("\nSorry, you are wrong!\n");
-                printf("\nYour guess:\n");
+        assert(model != NULL);
+        assert(opts != NULL);
+
+        RESETGUI();
+        print_header("result", model);
+
+        if (model->correct == model->guess) {
+                attron(COLOR_PAIR(2));
+                attron(A_BOLD);
+                mvprintw(y++, 1, "You are right!");
+                attroff(A_BOLD);
+        } else {
+                attron(COLOR_PAIR(3));
+                attron(A_BOLD);
+                mvprintw(y++, 1, "Sorry, you are wrong!");
+                attroff(A_BOLD);
+                y++;
+                mvprintw(y++, 1, "Your guess:");
+                y++;
                 print_oggfile(model->guess);
         }
+        attron(COLOR_PAIR(1));
 
-        printf("\nYou are listening to:\n");
+        y++;
+        mvprintw(y++, 1, "You are listening to:");
+        y++;
         print_oggfile(model->correct);
-        puts("\nScoreboard:\n");
-        for (i = 0; i < options.players; i++) {
+        y++;
+        attron(A_BOLD);
+        mvprintw(y++, 1, "Scoreboard:");
+        attroff(A_BOLD);
+        y++;
+        for (i = 0; i < opts->players; i++) {
                 if (i == model->current_player)
-                        mark = '*';
+                        attron(A_BOLD);
                 else
-                        mark = ' ';
-                printf("%c  Player %d: %5d %c\n", mark, i + 1, model->scores[i], mark);
+                        attroff(A_BOLD);
+                mvprintw(y++, 3, "Player %d: %5d", i + 1, model->scores[i]);
         }
-        puts("");
+        attrset(A_NORMAL);
+
+        attron(A_REVERSE);
+        y++;
+        mvaddstr(y++, 0, " press any key to continue... ");
+        attroff(A_REVERSE);
+
+        refresh();
 }
 
 char
 ui_get_answer()
 {
-        int             answer;
-        char            canswer;
+        int             in;
 
-        printf("What are you listening to? (1-%d, 'q' to quit)\n", options.choices);
-        for (;;) {
-                if (read(tty, &answer, 2) == -1)
-                        err(1, "could not read from /dev/tty");
-                canswer = (char)answer;
-                if (canswer == 'q' || (canswer >= '1' && canswer <= '0' + options.choices))
-                        break;
-        }
-        return canswer;
+        in = getch();
+
+        return ((char)in);
 }
 
 void
 ui_pause()
 {
-        char            in;
-
-        printf("press return to continue...\n");
-        for (;;) {
-                if (read(tty, &in, 1) == -1)
-                        err(1, "could not read from /dev/tty");
-                if (in == '\n')
-                        break;
-        }
+        getch();
 }
 
 void
 ui_teardown()
 {
-        if (tty != -1) {
-                if (close(tty) == -1)
-                        err(1, "could not close fd for /dev/tty");
-                tty = -1;
-        }
+        if (close(tty) == -1)
+                err(1, "could not close fd for /dev/tty");
+        if (fclose(ftty) == EOF)
+                err(1, "could not close /dev/tty");
+        delscreen(term);
 }
 
 static void
-print_oggfile(oggfile_t *oggfile)
+print_oggfile(struct oggfile *oggfile)
 {
-        printf("  %s\n", oggfile->artist);
-        printf("  %s\n", oggfile->album);
-        printf("  %s\n", oggfile->title);
+        assert(oggfile !=NULL);
+
+        mvprintw(y++, 3, "%s", oggfile->artist);
+        mvprintw(y++, 3, "%s", oggfile->album);
+        mvprintw(y++, 3, "%s", oggfile->title);
+}
+
+static void
+print_header(char const *step, struct ui_model *model)
+{
+        assert(step != NULL);
+        assert(model != NULL);
+
+        attron(A_REVERSE);
+        mvprintw(y, 0, " %s | current turn: %03d | current player: %d ",
+                 step, model->turn, model->current_player + 1);
+        y += 2;
+        attroff(A_REVERSE);
 }

@@ -6,20 +6,15 @@
  *                                                              Tobias Rehbein
  */
 
-#ifndef _common_h_
-#define _common_h_
+enum {
+        FILENAMELEN = 1024,
+        OPTIONLEN = 64,
+        ARTISTLEN = 128,
+        ALBUMLEN = 128,
+        TITLELEN = 128
+};
 
-#define FILENAMELEN     1024
-#define OPTIONLEN       64
-#define ARTISTLEN       128
-#define ALBUMLEN        128
-#define TITLELEN        128
-
-#define SAFE_STRNCPY(dst, src, len)     { \
+#define SAFE_STRNCPY(dst, src, len)     do { \
                                         strncpy(dst, src, (len)-1); \
                                         dst[(len)-1] = '\0'; \
-                                        }
-
-#define MIN(a, b)                       ((a) < (b)) ? a : b
-
-#endif
+                                        } while (0)

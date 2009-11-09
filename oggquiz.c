@@ -6,44 +6,52 @@
  *                                                              Tobias Rehbein
  */
 
+#include <assert.h>
+#include <err.h>
+#include <getopt.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <getopt.h>
-#include <err.h>
-#include <locale.h>
-#include "oggquiz.h"
+
 #include "common.h"
 #include "oggfile.h"
+#include "oggquiz.h"
 #include "player.h"
 #include "ui.h"
 
-#define TIMEOUT         60
-#define CHOICES         4
-#define OGG123          "/usr/local/bin/ogg123"
+#define MIN(a, b)                       ((a) < (b)) ? a : b
+
+static const char *OGG123 = "/usr/local/bin/ogg123";
+
+enum {
+        CHOICES = 4,
+        TIMEOUT = 60
+};
 
 /* Prototypes */
-static void     init_options();
-static int      new_turn(oggfile_t *oggfiles);
-static void     parse_options(int argc, char **argv);
-
-/* Global variables */
-options_t       options;
+static void     init_options(struct options *opts);
+static int      new_turn(struct oggfile *oggfiles, struct options *opts);
+static void     parse_options(struct options *opts, int argc, char **argv);
 
 int
 main(int argc, char **argv)
 {
         char            filename[FILENAMELEN];
         char           *newline;
-        int             oggfileno = 0;
-        oggfile_t       oggfiles[CHOICES];
+        int             oggfileno;
+        struct oggfile  oggfiles[CHOICES];
+        struct options  opts;
+
+        assert(argc >= 0);
+        assert(argv != NULL);
 
         if (!setlocale(LC_ALL, ""))
                 warnx("could not set locale");
 
-        init_options();
-        parse_options(argc, argv);
+        init_options(&opts);
+        parse_options(&opts, argc, argv);
         /*
          * After this point the global options structure is considered read
          * only!
@@ -52,6 +60,7 @@ main(int argc, char **argv)
         oggfile_setup();
         ui_setup();
 
+        oggfileno = 0;
         while (fgets(filename, FILENAMELEN, stdin) != NULL) {
                 if ((newline = strchr(filename, '\n')) != NULL)
                         newline[0] = '\0';
@@ -59,9 +68,9 @@ main(int argc, char **argv)
                 if (!oggfile_create(&oggfiles[oggfileno], filename))
                         oggfileno++;
 
-                if (oggfileno == options.choices) {
+                if (oggfileno == opts.choices) {
                         oggfileno = 0;
-                        if (new_turn(oggfiles))
+                        if (new_turn(oggfiles, &opts))
                                 break;
                 }
         }
@@ -70,61 +79,73 @@ main(int argc, char **argv)
         oggfile_teardown();
         player_stop();
 
-        return 0;
+        return (0);
 }
 
 static int
-new_turn(oggfile_t *oggfiles)
+new_turn(struct oggfile *oggfiles, struct options *opts)
 {
         static int      first_invocation = 0;
-        static ui_model_t model;
+        static struct ui_model model;
         int             correct;
         char            guess;
         time_t          start;
+
+        assert(oggfiles != NULL);
+        assert(opts != NULL);
 
         if (!first_invocation) {
                 first_invocation = 1;
                 srand(time(NULL));
                 /* abusing the correct variable as a temporary variable */
-                for (correct = 0; correct < options.choices; correct++) {
+                for (correct = 0; correct < opts->choices; correct++) {
                         model.scores[correct] = 0;
                         model.turn = 0;
                 }
         }
         model.turn++;
-        model.current_player = ((model.turn - 1) % options.players);
+        model.current_player = ((model.turn - 1) % opts->players);
         model.oggfiles = oggfiles;
-        correct = rand() % options.choices;
+        correct = rand() % opts->choices;
         model.correct = &oggfiles[correct];
-        ui_display_quiz(&model);
-        player_play(model.correct);
+        ui_display_quiz(&model, opts);
+        player_play(model.correct, opts);
         start = time(NULL);
-        guess = ui_get_answer();
-        if (guess == 'q')
-                return 1;
+        do {
+                guess = ui_get_answer();
+                if (guess == 'q')
+                        return (1);
+        } while (guess < '1' || guess > '0' + opts->choices);
         model.guess = &oggfiles[guess - '1'];
         if (model.guess == model.correct)
-                model.scores[model.current_player] += MIN(options.time, time(NULL) - start);
+                model.scores[model.current_player] += MIN(opts->time, time(NULL) - start);
         else
-                model.scores[model.current_player] += options.time;
-        ui_display_result(&model);
+                model.scores[model.current_player] += opts->time;
+        ui_display_result(&model, opts);
         ui_pause();
-        return 0;
+
+        return (0);
 }
 
 static void
-init_options()
+init_options(struct options *opts)
 {
-        options.time = TIMEOUT;
-        options.choices = CHOICES;
-        options.players = PLAYERS;
-        SAFE_STRNCPY(options.ogg123, OGG123, OPTIONLEN);
+        assert(opts != NULL);
+
+        opts->time = TIMEOUT;
+        opts->choices = CHOICES;
+        opts->players = PLAYERS;
+        SAFE_STRNCPY(opts->ogg123, OGG123, OPTIONLEN);
 }
 
 static void
-parse_options(int argc, char **argv)
+parse_options(struct options *opts, int argc, char **argv)
 {
         int             ch;
+
+        assert(opts != NULL);
+        assert(argc >= 0);
+        assert(argv != NULL);
 
         struct option   longopts[] = {
                 {"time", required_argument, NULL, 't'},
@@ -137,22 +158,22 @@ parse_options(int argc, char **argv)
         while ((ch = getopt_long(argc, argv, "t:c:p:o:e:h", longopts, NULL)) != -1)
                 switch (ch) {
                 case 't':
-                        options.time = (int)strtol(optarg, (char **)NULL, 10);
+                        opts->time = (int)strtol(optarg, (char **)NULL, 10);
                         break;
                 case 'c':
-                        options.choices = (int)strtol(optarg, (char **)NULL, 10);
-                        if (options.choices < 1 || options.choices > CHOICES)
+                        opts->choices = (int)strtol(optarg, (char **)NULL, 10);
+                        if (opts->choices < 1 || opts->choices > CHOICES)
                                 errx(1, "choices must not exceed %d", CHOICES);
                         break;
                 case 'p':
-                        options.players = (int)strtol(optarg, (char **)NULL, 10);
-                        if (options.players < 1 || options.players > PLAYERS)
+                        opts->players = (int)strtol(optarg, (char **)NULL, 10);
+                        if (opts->players < 1 || opts->players > PLAYERS)
                                 errx(1, "players must not exceed %d", PLAYERS);
                         break;
                 case 'o':
                         if (strlen(optarg) >= OPTIONLEN)
                                 errx(1, "length of argument 'o' must not exceed %d bytes", OPTIONLEN);
-                        SAFE_STRNCPY(options.ogg123, optarg, OPTIONLEN);
+                        SAFE_STRNCPY(opts->ogg123, optarg, OPTIONLEN);
                         break;
                 default:
                 case 'h':

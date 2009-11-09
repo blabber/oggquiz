@@ -1,21 +1,29 @@
 PROG=		oggquiz
 SRCS=		${PROG}.c oggfile.c player.c ui.c
-
 NO_MAN=         yes
 
-CLEANFILES=	*.[Bb][Aa][Kk] *.core
+CSTD?=		c89
+WARNS?=		6
+WFORMAT?=	1
+# NO_WERROR is needed as libvorbis.h defines some static variables not used
+# in this code. This leads to warnings and breaks the build if NO_WERROR is
+# unset.  But I prefer NO_WERROR to hiding the warning.
+NO_WERROR=	yes
 
-CFLAGS+=	-Wall --ansi --pedantic
 CFLAGS+=	-I/usr/local/include
 LDFLAGS+=	-L/usr/local/lib 
 LDADD+=		-lvorbisfile
 LDADD+=		-liconv
+LDADD+=		-lcurses
 
+CLEANFILES=	*.[Bb][Aa][Kk] *.core
 CTAGS=		ctags
 
 FIND=		/usr/bin/find
 INDENT=		/usr/bin/indent
 XARGS=		/usr/bin/xargs
+
+all: indent
 
 indent: .PHONY
 	${FIND} . -type f -name '*.[c,h]' | ${XARGS} -n 1 ${INDENT}

@@ -6,35 +6,38 @@
  *                                                              Tobias Rehbein
  */
 
-#include <unistd.h>
-#include <signal.h>
+#include <assert.h>
 #include <err.h>
+#include <signal.h>
 #include <sys/types.h>
+#include <unistd.h>
+
 #include "common.h"
 #include "oggfile.h"
-#include "player.h"
 #include "oggquiz.h"
+#include "player.h"
 
 /* Global variables */
-extern options_t options;
 static pid_t    pid = (pid_t) (-1);
 
 void
-player_play(oggfile_t *oggfile)
+player_play(struct oggfile *oggfile, struct options *opts)
 {
         pid_t           lpid;
+
+        assert(oggfile !=NULL);
+        assert(opts != NULL);
 
         player_stop();
 
         switch (lpid = fork()) {
         case (0):
-                execl(options.ogg123, "ogg123", "-q", oggfile->filename, NULL);
-                err(1, "could not exec %s", options.ogg123);
+                execl(opts->ogg123, "ogg123", "-q", oggfile->filename, NULL);
+                err(1, "could not exec %s", opts->ogg123);
         case (-1):
                 err(1, "could not fork player");
         default:
                 pid = lpid;
-                return;
         }
 }
 

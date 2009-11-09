@@ -6,36 +6,41 @@
  *                                                              Tobias Rehbein
  */
 
-#include <stdlib.h>
-#include <string.h>
+#include <assert.h>
 #include <err.h>
 #include <iconv.h>
+#include <stdlib.h>
+#include <string.h>
 #include <vorbis/vorbisfile.h>
+
+#include "common.h"
 #include "oggfile.h"
-#include "oggquiz.h"
 
 /* Prototypes */
-static int      fill_comments(oggfile_t *oggfile);
+static int      fill_comments(struct oggfile *oggfile);
 static void     convert(char *in, char *out, size_t outlen);
 
 /* Global variables */
-extern options_t options;
-static iconv_t  cd = NULL;
+static iconv_t  cd;
 
 int
-oggfile_create(oggfile_t *oggfile, char *filename)
+oggfile_create(struct oggfile *oggfile, char *filename)
 {
+        assert(oggfile !=NULL);
+        assert(filename != NULL);
+
         SAFE_STRNCPY(oggfile->filename, filename, FILENAMELEN);
-        oggfile->artist[0] = '\0';
-        oggfile->album[0] = '\0';
-        oggfile->title[0] = '\0';
+        oggfile       ->artist[0] = '\0';
+        oggfile       ->album[0] = '\0';
+        oggfile       ->title[0] = '\0';
         if (fill_comments(oggfile))
-                return 1;
-        return 0;
+                return (1);
+
+        return (0);
 }
 
 static int
-fill_comments(oggfile_t *oggfile)
+fill_comments(struct oggfile *oggfile)
 {
         OggVorbis_File  ovf;
         vorbis_comment *ovc;
@@ -43,13 +48,15 @@ fill_comments(oggfile_t *oggfile)
         char           *key;
         char           *value;
 
+        assert(oggfile !=NULL);
+
         if (ov_fopen(oggfile->filename, &ovf)) {
                 warnx("could not open file: %s", oggfile->filename);
-                return 1;
+                return (1);
         }
         if ((ovc = ov_comment(&ovf, -1)) == NULL) {
                 warnx("could not read comments for file: %s", oggfile->filename);
-                return 1;
+                return (1);
         }
         for (i = 0; i < ovc->comments; i++) {
                 value = ovc->user_comments[i];
@@ -60,34 +67,31 @@ fill_comments(oggfile_t *oggfile)
                         convert(value, oggfile->album, ALBUMLEN);
                 else if (!strcasecmp(key, "title"))
                         convert(value, oggfile->title, TITLELEN);
-                if (oggfile->artist == NULL || oggfile->album == NULL || oggfile->title == NULL) {
+                if (oggfile->artist == NULL || oggfile->album == NULL || oggfile->title == NULL){
                         warnx("insufficient comments for file: %s", oggfile->filename);
-                        return 1;
+                        return (1);
                 }
         }
 
         if (ov_clear(&ovf))
                 warnx("could not close file: %s", oggfile->filename);
 
-        return 0;
+        return (0);
 }
 
 void
 oggfile_setup()
 {
-        if (!cd)
-                if ((cd = iconv_open("char", "UTF-8")) == (iconv_t) (-1))
-                        errx(1, "could not open conversion descriptor");
+        if ((cd = iconv_open("char", "UTF-8")) == (iconv_t) (-1))
+                errx(1, "could not open conversion descriptor");
 }
 
 void
 oggfile_teardown()
 {
-        if (cd) {
+        if (cd != (iconv_t) (-1))
                 if (iconv_close(cd) == -1)
                         errx(1, "could not close conversion descriptor");
-                cd = NULL;
-        }
 }
 
 static void
@@ -96,6 +100,10 @@ convert(char *in, char *out, size_t outlen)
         char          **inp;
         char          **outp;
         size_t          inlen = strlen(in);
+
+        assert(in != NULL);
+        assert(out != NULL);
+        assert(outlen > 0);
 
         inp = &in;
         outp = &out;
@@ -109,6 +117,4 @@ convert(char *in, char *out, size_t outlen)
         }
 
         *outp[0] = '\0';
-
-        return;
 }

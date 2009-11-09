@@ -6,12 +6,10 @@
  *                                                              Tobias Rehbein
  */
 
-#include "oggfile.h"
+/**
+ * Required includes
+ * oggfile.h
+ */
 
-#ifndef _player_h_
-#define _player_h_
-
-void            player_play(oggfile_t *oggfile);
-void            player_stop();
-
-#endif
+void            player_play(struct oggfile *_oggfile, struct options *_opts);
+void            player_stop(void);
