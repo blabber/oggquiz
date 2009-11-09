@@ -98,7 +98,7 @@ new_turn(struct oggfile *oggfiles, struct options *opts)
                 first_invocation = 1;
                 srand(time(NULL));
                 /* abusing the correct variable as a temporary variable */
-                for (correct = 0; correct < opts->choices; correct++) {
+                for (correct = 0; correct < opts->players; correct++) {
                         model.scores[correct] = 0;
                         model.turn = 0;
                 }
