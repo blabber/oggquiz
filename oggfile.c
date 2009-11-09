@@ -24,23 +24,23 @@ static void     convert(char *in, char *out, size_t outlen);
 static iconv_t  cd;
 
 int
-oggfile_create(struct oggfile *oggfile, char *filename)
+oggfile_create(struct oggfile *ogg, char *filename)
 {
-        assert(oggfile !=NULL);
+        assert(ogg != NULL);
         assert(filename != NULL);
 
-        SAFE_STRNCPY(oggfile->filename, filename, FILENAMELEN);
-        oggfile       ->artist[0] = '\0';
-        oggfile       ->album[0] = '\0';
-        oggfile       ->title[0] = '\0';
-        if (fill_comments(oggfile))
+        SAFE_STRNCPY(ogg->filename, filename, FILENAMELEN);
+        ogg->artist[0] = '\0';
+        ogg->album[0] = '\0';
+        ogg->title[0] = '\0';
+        if (fill_comments(ogg))
                 return (1);
 
         return (0);
 }
 
 static int
-fill_comments(struct oggfile *oggfile)
+fill_comments(struct oggfile *ogg)
 {
         OggVorbis_File  ovf;
         vorbis_comment *ovc;
@@ -48,33 +48,33 @@ fill_comments(struct oggfile *oggfile)
         char           *key;
         char           *value;
 
-        assert(oggfile !=NULL);
+        assert(ogg != NULL);
 
-        if (ov_fopen(oggfile->filename, &ovf)) {
-                warnx("could not open file: %s", oggfile->filename);
+        if (ov_fopen(ogg->filename, &ovf)) {
+                warnx("could not open file: %s", ogg->filename);
                 return (1);
         }
         if ((ovc = ov_comment(&ovf, -1)) == NULL) {
-                warnx("could not read comments for file: %s", oggfile->filename);
+                warnx("could not read comments for file: %s", ogg->filename);
                 return (1);
         }
         for (i = 0; i < ovc->comments; i++) {
                 value = ovc->user_comments[i];
                 key = strsep(&value, "=");
                 if (!strcasecmp(key, "artist"))
-                        convert(value, oggfile->artist, ARTISTLEN);
+                        convert(value, ogg->artist, ARTISTLEN);
                 else if (!strcasecmp(key, "album"))
-                        convert(value, oggfile->album, ALBUMLEN);
+                        convert(value, ogg->album, ALBUMLEN);
                 else if (!strcasecmp(key, "title"))
-                        convert(value, oggfile->title, TITLELEN);
-                if (oggfile->artist == NULL || oggfile->album == NULL || oggfile->title == NULL){
-                        warnx("insufficient comments for file: %s", oggfile->filename);
+                        convert(value, ogg->title, TITLELEN);
+                if (ogg->artist == NULL || ogg->album == NULL || ogg->title == NULL) {
+                        warnx("insufficient comments for file: %s", ogg->filename);
                         return (1);
                 }
         }
 
         if (ov_clear(&ovf))
-                warnx("could not close file: %s", oggfile->filename);
+                warnx("could not close file: %s", ogg->filename);
 
         return (0);
 }

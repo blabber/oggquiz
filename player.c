@@ -21,18 +21,18 @@
 static pid_t    pid = (pid_t) (-1);
 
 void
-player_play(struct oggfile *oggfile, struct options *opts)
+player_play(struct oggfile *ogg, struct options *opts)
 {
         pid_t           lpid;
 
-        assert(oggfile !=NULL);
+        assert(ogg != NULL);
         assert(opts != NULL);
 
         player_stop();
 
         switch (lpid = fork()) {
         case (0):
-                execl(opts->ogg123, "ogg123", "-q", oggfile->filename, NULL);
+                execl(opts->ogg123, "ogg123", "-q", ogg->filename, NULL);
                 err(1, "could not exec %s", opts->ogg123);
         case (-1):
                 err(1, "could not fork player");

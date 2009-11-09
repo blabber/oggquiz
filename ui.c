@@ -166,13 +166,13 @@ ui_teardown()
 }
 
 static void
-print_oggfile(struct oggfile *oggfile)
+print_oggfile(struct oggfile *ogg)
 {
-        assert(oggfile !=NULL);
+        assert(ogg != NULL);
 
-        mvprintw(y++, 3, "%s", oggfile->artist);
-        mvprintw(y++, 3, "%s", oggfile->album);
-        mvprintw(y++, 3, "%s", oggfile->title);
+        mvprintw(y++, 3, "%s", ogg->artist);
+        mvprintw(y++, 3, "%s", ogg->album);
+        mvprintw(y++, 3, "%s", ogg->title);
 }
 
 static void
