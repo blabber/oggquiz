@@ -33,7 +33,7 @@ oggfile_create(struct oggfile *ogg, char *filename)
         ogg->artist[0] = '\0';
         ogg->album[0] = '\0';
         ogg->title[0] = '\0';
-        if (fill_comments(ogg))
+        if (fill_comments(ogg) != 0)
                 return (1);
 
         return (0);
@@ -50,7 +50,7 @@ fill_comments(struct oggfile *ogg)
 
         assert(ogg != NULL);
 
-        if (ov_fopen(ogg->filename, &ovf)) {
+        if (ov_fopen(ogg->filename, &ovf) != 0) {
                 warnx("could not open file: %s", ogg->filename);
                 return (1);
         }
@@ -61,11 +61,11 @@ fill_comments(struct oggfile *ogg)
         for (i = 0; i < ovc->comments; i++) {
                 value = ovc->user_comments[i];
                 key = strsep(&value, "=");
-                if (!strcasecmp(key, "artist"))
+                if (strcasecmp(key, "artist") == 0)
                         convert(value, ogg->artist, ARTISTLEN);
-                else if (!strcasecmp(key, "album"))
+                else if (strcasecmp(key, "album") == 0)
                         convert(value, ogg->album, ALBUMLEN);
-                else if (!strcasecmp(key, "title"))
+                else if (strcasecmp(key, "title") == 0)
                         convert(value, ogg->title, TITLELEN);
                 if (ogg->artist == NULL || ogg->album == NULL || ogg->title == NULL) {
                         warnx("insufficient comments for file: %s", ogg->filename);
@@ -73,7 +73,7 @@ fill_comments(struct oggfile *ogg)
                 }
         }
 
-        if (ov_clear(&ovf))
+        if (ov_clear(&ovf) != 0)
                 warnx("could not close file: %s", ogg->filename);
 
         return (0);

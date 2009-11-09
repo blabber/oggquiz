@@ -47,7 +47,7 @@ main(int argc, char **argv)
         assert(argc >= 0);
         assert(argv != NULL);
 
-        if (!setlocale(LC_ALL, ""))
+        if (setlocale(LC_ALL, "") == NULL)
                 warnx("could not set locale");
 
         init_options(&opts);
@@ -65,7 +65,7 @@ main(int argc, char **argv)
                 if ((newline = strchr(filename, '\n')) != NULL)
                         newline[0] = '\0';
 
-                if (!oggfile_create(&oggfiles[oggfileno], filename))
+                if (oggfile_create(&oggfiles[oggfileno], filename) == 0)
                         oggfileno++;
 
                 if (oggfileno == opts.choices) {
