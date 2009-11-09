@@ -34,6 +34,7 @@ enum {
 static void     init_options(struct options *opts);
 static int      new_turn(struct oggfile *oggfiles, struct options *opts);
 static void     parse_options(struct options *opts, int argc, char **argv);
+static void     usage(void);
 
 int
 main(int argc, char **argv)
@@ -176,10 +177,18 @@ parse_options(struct options *opts, int argc, char **argv)
                         SAFE_STRNCPY(opts->ogg123, optarg, OPTIONLEN);
                         break;
                 default:
+                        usage();
+                        exit(1);
                 case 'h':
-                        puts("oggquiz [-t | --time seconds] [-c | --choices choices] [-p | --players players]");
-                        puts("        [-o | --ogg123 command]");
-                        puts("oggquiz {-h | --help}");
+                        usage();
                         exit(0);
                 }
+}
+
+static void
+usage()
+{
+        printf("oggquiz [-t | --time seconds] [-c | --choices choices] [-p | --players players]\n");
+        printf("        [-o | --ogg123 command]\n\n");
+        printf("oggquiz {-h | --help}\n");
 }
