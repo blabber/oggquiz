@@ -19,13 +19,4 @@ LDADD+=		-lcurses
 CLEANFILES=	*.[Bb][Aa][Kk] *.core
 CTAGS=		ctags
 
-FIND=		/usr/bin/find
-INDENT=		/usr/bin/indent
-XARGS=		/usr/bin/xargs
-
-all: indent
-
-indent: .PHONY
-	${FIND} . -type f -name '*.[c,h]' | ${XARGS} -n 1 ${INDENT}
-
 .include <bsd.prog.mk>
