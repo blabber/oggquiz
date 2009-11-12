@@ -8,7 +8,6 @@
 
 #include <assert.h>
 #include <err.h>
-#include <getopt.h>
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +15,7 @@
 #include <time.h>
 
 #include "common.h"
+#include "options.h"
 #include "oggfile.h"
 #include "oggquiz.h"
 #include "player.h"
@@ -23,15 +23,12 @@
 
 #define MIN(a, b)                       ((a) < (b)) ? a : b
 
-static const char *OGG123 = "/usr/local/bin/ogg123";
-
 enum {
         CHOICES = 4,
         TIMEOUT = 60
 };
 
 /* Prototypes */
-static void     init_options(struct options *opts);
 static int      new_turn(struct oggfile *oggfiles, struct options *opts);
 static void     parse_options(struct options *opts, int argc, char **argv);
 static void     usage(void);
@@ -51,7 +48,6 @@ main(int argc, char **argv)
         if (setlocale(LC_ALL, "") == NULL)
                 warnx("could not set locale");
 
-        init_options(&opts);
         parse_options(&opts, argc, argv);
         /*
          * After this point the global options structure is considered read
@@ -129,66 +125,18 @@ new_turn(struct oggfile *oggfiles, struct options *opts)
 }
 
 static void
-init_options(struct options *opts)
+parse_options(struct options *old_opts, int argc, char **argv)
 {
-        assert(opts != NULL);
+        struct opts_options opts;
 
-        opts->time = TIMEOUT;
-        opts->choices = CHOICES;
-        opts->players = PLAYERS;
-        SAFE_STRNCPY(opts->ogg123, OGG123, OPTIONLEN);
-}
-
-static void
-parse_options(struct options *opts, int argc, char **argv)
-{
-        int             ch;
-
-        assert(opts != NULL);
+        assert(old_opts != NULL);
         assert(argc >= 0);
         assert(argv != NULL);
 
-        struct option   longopts[] = {
-                {"time", required_argument, NULL, 't'},
-                {"choices", required_argument, NULL, 'c'},
-                {"players", required_argument, NULL, 'p'},
-                {"ogg123", required_argument, NULL, 'o'},
-                {"help", no_argument, NULL, 'h'}
-        };
+        opts_parse_options(&opts, argc, argv);
 
-        while ((ch = getopt_long(argc, argv, "t:c:p:o:e:h", longopts, NULL)) != -1)
-                switch (ch) {
-                case 't':
-                        opts->time = (int)strtol(optarg, (char **)NULL, 10);
-                        break;
-                case 'c':
-                        opts->choices = (int)strtol(optarg, (char **)NULL, 10);
-                        if (opts->choices < 1 || opts->choices > CHOICES)
-                                errx(1, "choices must not exceed %d", CHOICES);
-                        break;
-                case 'p':
-                        opts->players = (int)strtol(optarg, (char **)NULL, 10);
-                        if (opts->players < 1 || opts->players > PLAYERS)
-                                errx(1, "players must not exceed %d", PLAYERS);
-                        break;
-                case 'o':
-                        if (strlen(optarg) >= OPTIONLEN)
-                                errx(1, "length of argument 'o' must not exceed %d bytes", OPTIONLEN);
-                        SAFE_STRNCPY(opts->ogg123, optarg, OPTIONLEN);
-                        break;
-                default:
-                        usage();
-                        exit(1);
-                case 'h':
-                        usage();
-                        exit(0);
-                }
-}
-
-static void
-usage()
-{
-        printf("oggquiz [-t | --time seconds] [-c | --choices choices] [-p | --players players]\n");
-        printf("        [-o | --ogg123 command]\n\n");
-        printf("oggquiz {-h | --help}\n");
+        old_opts->time = opts.time;
+        old_opts->choices = opts.choices;
+        old_opts->players = opts.players;
+        old_opts->ogg123 = opts.ogg123;
 }

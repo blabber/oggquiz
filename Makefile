@@ -1,5 +1,5 @@
 PROG=		oggquiz
-SRCS=		${PROG}.c oggfile.c player.c ui.c
+SRCS=		${PROG}.c oggfile.c player.c ui.c options.c
 NO_MAN=         yes
 
 CSTD?=		c89
