@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sysexits.h>
 
 #include "options.h"
 
@@ -63,12 +64,12 @@ opts_parse_options(struct opts_options *opts, int argc, char **argv)
                 case 'c':
                         opts->choices = (int)strtol(optarg, (char **)NULL, 10);
                         if (opts->choices < 1 || opts->choices > CHOICES)
-                                errx(1, "choices must not exceed %d", CHOICES);
+                                errx(EX_USAGE, "choices must not exceed %d", CHOICES);
                         break;
                 case 'p':
                         opts->players = (int)strtol(optarg, (char **)NULL, 10);
                         if (opts->players < 1 || opts->players > PLAYERS)
-                                errx(1, "players must not exceed %d", PLAYERS);
+                                errx(EX_USAGE, "players must not exceed %d", PLAYERS);
                         break;
                 case 'o':
                         opts->ogg123 = optarg;

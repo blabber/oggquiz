@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sysexits.h>
 #include <unistd.h>
 #include <sys/types.h>
 
@@ -30,11 +31,11 @@ plr_context_open(char const *ogg123)
         assert(ogg123 != NULL);
 
         if ((ctx = malloc(sizeof(*ctx))) == NULL)
-                err(1, "could not malloc plr_ctx");
+                err(EX_SOFTWARE, "could not malloc plr_ctx");
 
         ogg123len = strlen(ogg123);
         if ((ctx->ogg123 = malloc(ogg123len + 1)) == NULL)
-                err(1, "could not malloc plr_ctx->ogg123");
+                err(EX_SOFTWARE, "could not malloc plr_ctx->ogg123");
         strncpy(ctx->ogg123, ogg123, ogg123len);
         ctx->ogg123[ogg123len] = '\0';
 
@@ -66,9 +67,9 @@ plr_play(struct plr_context *ctx, char *ogg)
         switch (lpid = fork()) {
         case (0):
                 execl(ctx->ogg123, ctx->ogg123, "-q", ogg, NULL);
-                err(1, "could not exec %s", ctx->ogg123);
+                err(EX_OSERR, "could not exec %s", ctx->ogg123);
         case (-1):
-                err(1, "could not fork player");
+                err(EX_OSERR, "could not fork player");
         default:
                 ctx->pid = lpid;
         }
@@ -79,7 +80,7 @@ plr_stop(struct plr_context *ctx)
 {
         if (ctx->pid != (pid_t) (-1)) {
                 if (kill(ctx->pid, SIGHUP))
-                        err(1, "could not kill running player: %d", ctx->pid);
+                        err(EX_OSERR, "could not kill running player: %d", ctx->pid);
                 ctx->pid = -1;
         }
 }

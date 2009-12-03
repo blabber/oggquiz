@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sysexits.h>
 #include <time.h>
 
 #include "options.h"
@@ -53,13 +54,13 @@ main(int argc, char **argv)
          */
 
         if ((ogg_ctx = ogg_context_open()) == NULL)
-                errx(1, "could not open oggfile context");
+                errx(EX_SOFTWARE, "could not open oggfile context");
         if ((plr_ctx = plr_context_open(opts.ogg123)) == NULL)
-                errx(1, "could not open player context");
+                errx(EX_SOFTWARE, "could not open player context");
         if ((ui_ctx = ui_context_open()) == NULL)
-                errx(1, "could not open ui context");
+                errx(EX_SOFTWARE, "could not open ui context");
         if ((oggfiles = malloc(opts.choices * sizeof(struct ogg_oggfile))) == NULL)
-                err(1, "could not malloc oggfiles");
+                err(EX_SOFTWARE, "could not malloc oggfiles");
 
         oggfileno = 0;
         while (fgets(filename, FILENAMELEN, stdin) != NULL) {
@@ -102,9 +103,9 @@ new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_co
                 first_invocation = 1;
                 srand(time(NULL));
                 if ((model.scores = malloc(opts->players * sizeof(int))) == NULL)
-                        err(1, "could not malloc scores");
+                        err(EX_SOFTWARE, "could not malloc scores");
                 if ((model.oggfiles = malloc(opts->choices * sizeof(struct ui_oggfile))) == NULL)
-                        err(1, "could not malloc oggfiles");
+                        err(EX_SOFTWARE, "could not malloc oggfiles");
                 for (i = 0; i < opts->players; i++) {
                         model.scores[i] = 0;
                 }

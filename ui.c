@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sysexits.h>
 #include <unistd.h>
 
 #include "ui.h"
@@ -30,16 +31,16 @@ ui_context_open(void)
         struct ui_context *ctx;
 
         if ((ctx = malloc(sizeof(*ctx))) == NULL)
-                err(1, "could not malloc ui_context");
+                err(EX_SOFTWARE, "could not malloc ui_context");
 
         if ((ctx->in = fopen("/dev/tty", "r")) == NULL)
-                err(1, "could not fopen /dev/tty");
+                err(EX_SOFTWARE, "could not fopen /dev/tty");
         if ((ctx->term = newterm(NULL, stdout, ctx->in)) == NULL)
-                errx(1, "could not create terminal");
+                errx(EX_SOFTWARE, "could not create terminal");
         if (initscr() == NULL)
-                errx(1, "could not initialize screen");
+                errx(EX_SOFTWARE, "could not initialize screen");
         if (set_term(ctx->term) == NULL)
-                errx(1, "could not set terminal");
+                errx(EX_SOFTWARE, "could not set terminal");
 
         cbreak();
         noecho();
@@ -58,7 +59,7 @@ ui_context_close(struct ui_context *ctx)
         assert(ctx != NULL);
 
         if (fclose(ctx->in) == EOF)
-                err(1, "could not fclose /dev/tty");
+                err(EX_SOFTWARE, "could not fclose /dev/tty");
         delscreen(ctx->term);
         free(ctx);
 }

@@ -11,6 +11,7 @@
 #include <iconv.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sysexits.h>
 #include <vorbis/vorbisfile.h>
 
 #include "oggfile.h"
@@ -104,6 +105,7 @@ ogg_context_close(struct ogg_context *ctx)
 
         if (iconv_close(ctx->cd) == -1)
                 return (1);
+        free(ctx);
 
         return (0);
 }
@@ -124,11 +126,11 @@ do_iconv(struct ogg_context *ctx, char *in, char *out, size_t outlen)
         outp = &out;
 
         if (iconv(ctx->cd, NULL, NULL, outp, &outlen) == (size_t) (-1))
-                errx(1, "could not set initial conversion state");
+                errx(EX_SOFTWARE, "could not set initial conversion state");
 
         while (inlen > 0) {
                 if (iconv(ctx->cd, (const char **)inp, &inlen, outp, &outlen) == (size_t) (-1))
-                        errx(1, "string conversion failed");
+                        errx(EX_SOFTWARE, "string conversion failed");
         }
 
         *outp[0] = '\0';
