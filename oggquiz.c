@@ -14,23 +14,19 @@
 #include <string.h>
 #include <time.h>
 
-#include "common.h"
 #include "options.h"
 #include "oggfile.h"
-#include "oggquiz.h"
 #include "player.h"
 #include "ui.h"
 
 #define MIN(a, b)                       ((a) < (b)) ? (a) : (b)
 
 enum {
-        CHOICES = 4,
-        TIMEOUT = 60
+        FILENAMELEN = 1024
 };
 
 /* Prototypes */
-static int      new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_context *ui_ctx, struct options *opts);
-static void     parse_options(struct options *opts, int argc, char **argv);
+static int      new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_context *ui_ctx, struct opts_options *opts);
 
 int
 main(int argc, char **argv)
@@ -38,8 +34,8 @@ main(int argc, char **argv)
         char            filename[FILENAMELEN];
         char           *newline;
         int             oggfileno;
-        struct ogg_oggfile oggfiles[CHOICES];
-        struct options  opts;
+        struct ogg_oggfile *oggfiles;
+        struct opts_options opts;
         struct ogg_context *ogg_ctx;
         struct plr_context *plr_ctx;
         struct ui_context *ui_ctx;
@@ -50,10 +46,9 @@ main(int argc, char **argv)
         if (setlocale(LC_ALL, "") == NULL)
                 warnx("could not set locale");
 
-        /* TODO */
-        parse_options(&opts, argc, argv);
+        opts_parse_options(&opts, argc, argv);
         /*
-         * After this point the global options structure is considered read
+         * After this point the opts_options structure is considered read
          * only!
          */
 
@@ -63,6 +58,8 @@ main(int argc, char **argv)
                 errx(1, "could not open player context");
         if ((ui_ctx = ui_context_open()) == NULL)
                 errx(1, "could not open ui context");
+        if ((oggfiles = malloc(opts.choices * sizeof(struct ogg_oggfile))) == NULL)
+                err(1, "could not malloc oggfiles");
 
         oggfileno = 0;
         while (fgets(filename, FILENAMELEN, stdin) != NULL) {
@@ -89,7 +86,7 @@ main(int argc, char **argv)
 }
 
 static int
-new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_context *ui_ctx, struct options *opts)
+new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_context *ui_ctx, struct opts_options *opts)
 {
         static int      first_invocation = 0;
         static struct ui_model model;
@@ -142,21 +139,4 @@ new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_co
                 return (1);
 
         return (0);
-}
-
-static void
-parse_options(struct options *old_opts, int argc, char **argv)
-{
-        struct opts_options opts;
-
-        assert(old_opts != NULL);
-        assert(argc >= 0);
-        assert(argv != NULL);
-
-        opts_parse_options(&opts, argc, argv);
-
-        old_opts->time = opts.time;
-        old_opts->choices = opts.choices;
-        old_opts->players = opts.players;
-        old_opts->ogg123 = opts.ogg123;
 }

@@ -1,7 +1,6 @@
 -nut
 -Togg_context
 -Togg_oggfile
--Toptions
 -Topts_options
 -Tplr_context
 -Tui_context
