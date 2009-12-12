@@ -6,10 +6,9 @@
  *                                                              Tobias Rehbein
  */
 
-/**
- * Required includes
- * oggfile.h
- */
+struct plr_context;
 
-void            player_play(struct oggfile *_oggfile, struct options *_opts);
-void            player_stop(void);
+struct plr_context *plr_context_open(char const *_ogg123);
+void            plr_context_close(struct plr_context *_ctx);
+void            plr_play(struct plr_context *_ctx, char *_oggfile);
+void            plr_stop(struct plr_context *_ctx);

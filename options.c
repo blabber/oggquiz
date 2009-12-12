@@ -22,6 +22,7 @@ enum {
 };
 static const char *OGG123 = "/usr/local/bin/ogg123";
 
+void            init_options(struct opts_options *opts);
 static void     print_usage(void);
 
 void

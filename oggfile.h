@@ -6,18 +6,15 @@
  *                                                              Tobias Rehbein
  */
 
-/**
- * Required includes:
- * common.h
- */
-
-struct oggfile {
-        char            artist[ARTISTLEN];
-        char            album[ALBUMLEN];
-        char            title[TITLELEN];
-        char            filename[FILENAMELEN];
+struct ogg_oggfile {
+        char            artist[128];
+        char            album[128];
+        char            title[128];
+        char            filename[1024];
 };
 
-int             oggfile_create(struct oggfile *_oggfile, char *_filename);
-void            oggfile_setup(void);
-void            oggfile_teardown(void);
+struct ogg_context;
+
+int             ogg_context_close(struct ogg_context *_ctx);
+struct ogg_context *ogg_context_open(void);
+int             ogg_oggfile_create(struct ogg_context *_ctx, struct ogg_oggfile *_oggfile, char *_filename);

@@ -21,7 +21,7 @@
 #include "player.h"
 #include "ui.h"
 
-#define MIN(a, b)                       ((a) < (b)) ? a : b
+#define MIN(a, b)                       ((a) < (b)) ? (a) : (b)
 
 enum {
         CHOICES = 4,
@@ -29,9 +29,8 @@ enum {
 };
 
 /* Prototypes */
-static int      new_turn(struct oggfile *oggfiles, struct options *opts);
+static int      new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_context *ui_ctx, struct options *opts);
 static void     parse_options(struct options *opts, int argc, char **argv);
-static void     usage(void);
 
 int
 main(int argc, char **argv)
@@ -39,8 +38,11 @@ main(int argc, char **argv)
         char            filename[FILENAMELEN];
         char           *newline;
         int             oggfileno;
-        struct oggfile  oggfiles[CHOICES];
+        struct ogg_oggfile oggfiles[CHOICES];
         struct options  opts;
+        struct ogg_context *ogg_ctx;
+        struct plr_context *plr_ctx;
+        struct ui_context *ui_ctx;
 
         assert(argc >= 0);
         assert(argv != NULL);
@@ -48,43 +50,51 @@ main(int argc, char **argv)
         if (setlocale(LC_ALL, "") == NULL)
                 warnx("could not set locale");
 
+        /* TODO */
         parse_options(&opts, argc, argv);
         /*
          * After this point the global options structure is considered read
          * only!
          */
 
-        oggfile_setup();
-        ui_setup();
+        if ((ogg_ctx = ogg_context_open()) == NULL)
+                errx(1, "could not open oggfile context");
+        if ((plr_ctx = plr_context_open(opts.ogg123)) == NULL)
+                errx(1, "could not open player context");
+        if ((ui_ctx = ui_context_open()) == NULL)
+                errx(1, "could not open ui context");
 
         oggfileno = 0;
         while (fgets(filename, FILENAMELEN, stdin) != NULL) {
                 if ((newline = strchr(filename, '\n')) != NULL)
                         newline[0] = '\0';
 
-                if (oggfile_create(&oggfiles[oggfileno], filename) == 0)
+                if (ogg_oggfile_create(ogg_ctx, &oggfiles[oggfileno], filename) == 0)
                         oggfileno++;
 
                 if (oggfileno == opts.choices) {
                         oggfileno = 0;
-                        if (new_turn(oggfiles, &opts))
+                        if (new_turn(oggfiles, plr_ctx, ui_ctx, &opts))
                                 break;
                 }
         }
 
-        ui_teardown();
-        oggfile_teardown();
-        player_stop();
+        plr_stop(plr_ctx);
+        plr_context_close(plr_ctx);
+        ui_context_close(ui_ctx);
+        if (ogg_context_close(ogg_ctx) != 0)
+                warn("could not close oggfile context");
 
         return (0);
 }
 
 static int
-new_turn(struct oggfile *oggfiles, struct options *opts)
+new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_context *ui_ctx, struct options *opts)
 {
         static int      first_invocation = 0;
         static struct ui_model model;
         int             correct;
+        int             i;
         char            guess;
         time_t          start;
 
@@ -94,32 +104,42 @@ new_turn(struct oggfile *oggfiles, struct options *opts)
         if (!first_invocation) {
                 first_invocation = 1;
                 srand(time(NULL));
-                /* abusing the correct variable as a temporary variable */
-                for (correct = 0; correct < opts->players; correct++) {
-                        model.scores[correct] = 0;
-                        model.turn = 0;
+                if ((model.scores = malloc(opts->players * sizeof(int))) == NULL)
+                        err(1, "could not malloc scores");
+                if ((model.oggfiles = malloc(opts->choices * sizeof(struct ui_oggfile))) == NULL)
+                        err(1, "could not malloc oggfiles");
+                for (i = 0; i < opts->players; i++) {
+                        model.scores[i] = 0;
                 }
+                model.turn = 0;
+                model.players = opts->players;
+                model.choices = opts->choices;
         }
         model.turn++;
-        model.current_player = ((model.turn - 1) % opts->players);
-        model.oggfiles = oggfiles;
-        correct = rand() % opts->choices;
-        model.correct = &oggfiles[correct];
-        ui_display_quiz(&model, opts);
-        player_play(model.correct, opts);
+        model.current_player = ((model.turn - 1) % model.players);
+        for (i = 0; i < model.choices; i++) {
+                model.oggfiles[i].title = oggfiles[i].title;
+                model.oggfiles[i].artist = oggfiles[i].artist;
+                model.oggfiles[i].album = oggfiles[i].album;
+        }
+        correct = rand() % model.choices;
+        model.correct = &model.oggfiles[correct];
+        ui_display_quiz(ui_ctx, &model);
+        plr_play(plr_ctx, oggfiles[correct].filename);
         start = time(NULL);
         do {
-                guess = ui_get_answer();
+                guess = ui_get_key();
                 if (guess == 'q')
                         return (1);
         } while (guess < '1' || guess > '0' + opts->choices);
-        model.guess = &oggfiles[guess - '1'];
+        model.guess = &model.oggfiles[guess - '1'];
         if (model.guess == model.correct)
                 model.scores[model.current_player] += MIN(opts->time, time(NULL) - start);
         else
                 model.scores[model.current_player] += opts->time;
-        ui_display_result(&model, opts);
-        ui_pause();
+        ui_display_result(ui_ctx, &model);
+        if (ui_get_key() == 'q')
+                return (1);
 
         return (0);
 }

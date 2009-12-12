@@ -13,41 +13,43 @@
 #include <string.h>
 #include <vorbis/vorbisfile.h>
 
-#include "common.h"
 #include "oggfile.h"
 
-/* Prototypes */
-static int      fill_comments(struct oggfile *oggfile);
-static void     convert(char *in, char *out, size_t outlen);
+#define SAFE_STRNCPY(dst, src, len)     do {                                    \
+                                                strncpy(dst, src, (len)-1);     \
+                                                dst[(len)-1] = '\0';            \
+                                        } while (0)
 
-/* Global variables */
-static iconv_t  cd;
+struct ogg_context {
+        iconv_t         cd;
+};
+
+static int      fill_comments(struct ogg_context *ctx, struct ogg_oggfile *ogg);
+static void     do_iconv(struct ogg_context *ctx, char *in, char *out, size_t outlen);
 
 int
-oggfile_create(struct oggfile *ogg, char *filename)
+ogg_oggfile_create(struct ogg_context *ctx, struct ogg_oggfile *ogg, char *filename)
 {
+        assert(ctx != NULL);
         assert(ogg != NULL);
         assert(filename != NULL);
 
-        SAFE_STRNCPY(ogg->filename, filename, FILENAMELEN);
-        ogg->artist[0] = '\0';
-        ogg->album[0] = '\0';
-        ogg->title[0] = '\0';
-        if (fill_comments(ogg) != 0)
+        SAFE_STRNCPY(ogg->filename, filename, sizeof(ogg->filename));
+        if (fill_comments(ctx, ogg) != 0)
                 return (1);
 
         return (0);
 }
 
 static int
-fill_comments(struct oggfile *ogg)
+fill_comments(struct ogg_context *ctx, struct ogg_oggfile *ogg)
 {
         OggVorbis_File  ovf;
         vorbis_comment *ovc;
+        char           *key, *value;
         int             i;
-        char           *key;
-        char           *value;
 
+        assert(ctx != NULL);
         assert(ogg != NULL);
 
         if (ov_fopen(ogg->filename, &ovf) != 0) {
@@ -62,11 +64,11 @@ fill_comments(struct oggfile *ogg)
                 value = ovc->user_comments[i];
                 key = strsep(&value, "=");
                 if (strcasecmp(key, "artist") == 0)
-                        convert(value, ogg->artist, ARTISTLEN);
+                        do_iconv(ctx, value, ogg->artist, sizeof(ogg->artist));
                 else if (strcasecmp(key, "album") == 0)
-                        convert(value, ogg->album, ALBUMLEN);
+                        do_iconv(ctx, value, ogg->album, sizeof(ogg->album));
                 else if (strcasecmp(key, "title") == 0)
-                        convert(value, ogg->title, TITLELEN);
+                        do_iconv(ctx, value, ogg->title, sizeof(ogg->title));
                 if (ogg->artist == NULL || ogg->album == NULL || ogg->title == NULL) {
                         warnx("insufficient comments for file: %s", ogg->filename);
                         return (1);
@@ -79,28 +81,41 @@ fill_comments(struct oggfile *ogg)
         return (0);
 }
 
-void
-oggfile_setup()
+struct ogg_context *
+ogg_context_open()
 {
+        struct ogg_context *ctx;
+        iconv_t         cd;
+
         if ((cd = iconv_open("char", "UTF-8")) == (iconv_t) (-1))
-                errx(1, "could not open conversion descriptor");
+                return (NULL);
+        if ((ctx = malloc(sizeof(*ctx))) == NULL)
+                return (NULL);
+
+        ctx->cd = cd;
+
+        return (ctx);
 }
 
-void
-oggfile_teardown()
+int
+ogg_context_close(struct ogg_context *ctx)
 {
-        if (cd != (iconv_t) (-1))
-                if (iconv_close(cd) == -1)
-                        errx(1, "could not close conversion descriptor");
+        assert(ctx != NULL);
+
+        if (iconv_close(ctx->cd) == -1)
+                return (1);
+
+        return (0);
 }
 
 static void
-convert(char *in, char *out, size_t outlen)
+do_iconv(struct ogg_context *ctx, char *in, char *out, size_t outlen)
 {
         char          **inp;
         char          **outp;
         size_t          inlen = strlen(in);
 
+        assert(ctx != NULL);
         assert(in != NULL);
         assert(out != NULL);
         assert(outlen > 0);
@@ -108,11 +123,11 @@ convert(char *in, char *out, size_t outlen)
         inp = &in;
         outp = &out;
 
-        if (iconv(cd, NULL, NULL, outp, &outlen) == (size_t) (-1))
+        if (iconv(ctx->cd, NULL, NULL, outp, &outlen) == (size_t) (-1))
                 errx(1, "could not set initial conversion state");
 
         while (inlen > 0) {
-                if (iconv(cd, (const char **)inp, &inlen, outp, &outlen) == (size_t) (-1))
+                if (iconv(ctx->cd, (const char **)inp, &inlen, outp, &outlen) == (size_t) (-1))
                         errx(1, "string conversion failed");
         }
 

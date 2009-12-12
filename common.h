@@ -13,8 +13,3 @@ enum {
         ALBUMLEN = 128,
         TITLELEN = 128
 };
-
-#define SAFE_STRNCPY(dst, src, len)     do { \
-                                        strncpy(dst, src, (len)-1); \
-                                        dst[(len)-1] = '\0'; \
-                                        } while (0)

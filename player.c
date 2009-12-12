@@ -9,44 +9,77 @@
 #include <assert.h>
 #include <err.h>
 #include <signal.h>
-#include <sys/types.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
 
-#include "common.h"
-#include "oggfile.h"
-#include "oggquiz.h"
 #include "player.h"
 
-/* Global variables */
-static pid_t    pid = (pid_t) (-1);
+struct plr_context {
+        char           *ogg123;
+        pid_t           pid;
+};
+
+struct plr_context *
+plr_context_open(char const *ogg123)
+{
+        struct plr_context *ctx;
+        size_t          ogg123len;
+
+        assert(ogg123 != NULL);
+
+        if ((ctx = malloc(sizeof(*ctx))) == NULL)
+                err(1, "could not malloc plr_ctx");
+
+        ogg123len = strlen(ogg123);
+        if ((ctx->ogg123 = malloc(ogg123len + 1)) == NULL)
+                err(1, "could not malloc plr_ctx->ogg123");
+        strncpy(ctx->ogg123, ogg123, ogg123len);
+        ctx->ogg123[ogg123len] = '\0';
+
+        ctx->pid = (pid_t) - 1;
+
+        return (ctx);
+}
 
 void
-player_play(struct oggfile *ogg, struct options *opts)
+plr_context_close(struct plr_context *ctx)
+{
+        assert(ctx != NULL);
+
+        plr_stop(ctx);
+        free(ctx->ogg123);
+        free(ctx);
+}
+
+void
+plr_play(struct plr_context *ctx, char *ogg)
 {
         pid_t           lpid;
 
+        assert(ctx != NULL);
         assert(ogg != NULL);
-        assert(opts != NULL);
 
-        player_stop();
+        plr_stop(ctx);
 
         switch (lpid = fork()) {
         case (0):
-                execl(opts->ogg123, "ogg123", "-q", ogg->filename, NULL);
-                err(1, "could not exec %s", opts->ogg123);
+                execl(ctx->ogg123, ctx->ogg123, "-q", ogg, NULL);
+                err(1, "could not exec %s", ctx->ogg123);
         case (-1):
                 err(1, "could not fork player");
         default:
-                pid = lpid;
+                ctx->pid = lpid;
         }
 }
 
 void
-player_stop()
+plr_stop(struct plr_context *ctx)
 {
-        if (pid != (pid_t) (-1)) {
-                if (kill(pid, SIGHUP))
-                        err(1, "could not kill running player");
-                pid = -1;
+        if (ctx->pid != (pid_t) (-1)) {
+                if (kill(ctx->pid, SIGHUP))
+                        err(1, "could not kill running player: %d", ctx->pid);
+                ctx->pid = -1;
         }
 }

@@ -6,24 +6,27 @@
  *                                                              Tobias Rehbein
  */
 
-/**
- * Required includes:
- * oggfile.h
- * oggquiz.h
- */
-
-struct ui_model {
-        struct oggfile *oggfiles;
-        struct oggfile *guess;
-        struct oggfile *correct;
-        int             turn;
-        int             scores[PLAYERS];
-        int             current_player;
+struct ui_oggfile {
+        char           *artist;
+        char           *album;
+        char           *title;
 };
 
-void            ui_display_quiz(struct ui_model *model, struct options *opts);
-void            ui_display_result(struct ui_model *model, struct options *opts);
-char            ui_get_answer(void);
-void            ui_pause(void);
-void            ui_setup(void);
-void            ui_teardown(void);
+struct ui_model {
+        struct ui_oggfile *oggfiles;
+        struct ui_oggfile *guess;
+        struct ui_oggfile *correct;
+        int             turn;
+        int             players;
+        int            *scores;
+        int             current_player;
+        int             choices;
+};
+
+struct ui_context;
+
+void            ui_context_close(struct ui_context *_ctx);
+struct ui_context *ui_context_open(void);
+void            ui_display_quiz(struct ui_context *_ctx, struct ui_model *_model);
+void            ui_display_result(struct ui_context *_ctx, struct ui_model *_model);
+char            ui_get_key(void);
