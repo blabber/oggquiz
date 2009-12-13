@@ -56,7 +56,7 @@ main(int argc, char **argv)
 
         if ((ogg_ctx = ogg_context_open()) == NULL)
                 errx(EX_SOFTWARE, "could not open oggfile context");
-        if ((plr_ctx = plr_context_open(opts.ogg123)) == NULL)
+        if ((plr_ctx = plr_context_open(opts.ogg123, opts.ogg123_options)) == NULL)
                 errx(EX_SOFTWARE, "could not open player context");
         if ((ui_ctx = ui_context_open()) == NULL)
                 errx(EX_SOFTWARE, "could not open ui context");
@@ -134,9 +134,10 @@ new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_co
         } while (guess < '1' || guess > '0' + opts->choices);
         model.guess = &model.oggfiles[guess - '1'];
         if (model.guess == model.correct)
-                model.scores[model.current_player] += MIN(opts->time, time(NULL) - start);
+                model.score_delta = MIN(opts->time, time(NULL) - start);
         else
-                model.scores[model.current_player] += opts->time;
+                model.score_delta = opts->time;
+        model.scores[model.current_player] += model.score_delta;
         ui_display_result(ui_ctx, &model);
         if (ui_get_key() == 'q')
                 return (1);

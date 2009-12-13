@@ -8,7 +8,7 @@
 
 struct plr_context;
 
-struct plr_context *plr_context_open(char const *_ogg123);
+struct plr_context *plr_context_open(char const *_ogg123, char const *_ogg123_options);
 void            plr_context_close(struct plr_context *_ctx);
 void            plr_play(struct plr_context *_ctx, char *_oggfile);
 void            plr_stop(struct plr_context *_ctx);

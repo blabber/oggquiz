@@ -11,6 +11,7 @@ struct opts_options {
         int             choices;
         int             players;
         char const     *ogg123;
+        char const     *ogg123_options;
 };
 
 void            opts_parse_options(struct opts_options *_opts, int _argc, char **_argv);

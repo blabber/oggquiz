@@ -161,11 +161,13 @@ ui_display_result(struct ui_context *ctx, struct ui_model *model)
         attroff(A_BOLD);
         y++;
         for (i = 0; i < model->players; i++) {
-                if (i == model->current_player)
+                if (i == model->current_player) {
                         attron(A_BOLD);
-                else
+                        mvprintw(y++, 3, "Player %d: %5d (+%d)", i + 1, model->scores[i], model->score_delta);
+                } else {
                         attroff(A_BOLD);
-                mvprintw(y++, 3, "Player %d: %5d", i + 1, model->scores[i]);
+                        mvprintw(y++, 3, "Player %d: %5d", i + 1, model->scores[i]);
+                }
         }
         attrset(A_NORMAL);
         y++;

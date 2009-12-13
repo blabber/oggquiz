@@ -21,7 +21,9 @@ enum {
         CHOICES = 4,
         PLAYERS = 4
 };
+
 static const char *OGG123 = "/usr/local/bin/ogg123";
+static const char *OGG123_OPTIONS = "";
 
 void            init_options(struct opts_options *opts);
 static void     print_usage(void);
@@ -35,6 +37,7 @@ init_options(struct opts_options *opts)
         opts->choices = CHOICES;
         opts->players = PLAYERS;
         opts->ogg123 = OGG123;
+        opts->ogg123_options = OGG123_OPTIONS;
 }
 
 void
@@ -50,7 +53,8 @@ opts_parse_options(struct opts_options *opts, int argc, char **argv)
                 {"time", required_argument, NULL, 't'},
                 {"choices", required_argument, NULL, 'c'},
                 {"players", required_argument, NULL, 'p'},
-                {"ogg123", required_argument, NULL, 'o'},
+                {"ogg123", required_argument, NULL, 'O'},
+                {"ogg123-options", required_argument, NULL, 'o'},
                 {"help", no_argument, NULL, 'h'}
         };
 
@@ -71,8 +75,11 @@ opts_parse_options(struct opts_options *opts, int argc, char **argv)
                         if (opts->players < 1 || opts->players > PLAYERS)
                                 errx(EX_USAGE, "players must not exceed %d", PLAYERS);
                         break;
-                case 'o':
+                case 'O':
                         opts->ogg123 = optarg;
+                        break;
+                case 'o':
+                        opts->ogg123_options = optarg;
                         break;
                 default:
                         print_usage();
@@ -87,6 +94,6 @@ static void
 print_usage()
 {
         printf("oggquiz [-t | --time seconds] [-c | --choices choices] [-p | --players players]\n");
-        printf("        [-o | --ogg123 command]\n\n");
+        printf("        [-o | --ogg123-options options] [-O | --ogg123 command]\n\n");
         printf("oggquiz {-h | --help}\n");
 }

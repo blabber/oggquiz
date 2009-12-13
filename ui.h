@@ -19,6 +19,7 @@ struct ui_model {
         int             turn;
         int             players;
         int            *scores;
+        int             score_delta;
         int             current_player;
         int             choices;
 };
