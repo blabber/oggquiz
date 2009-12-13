@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <err.h>
 #include <locale.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +27,7 @@ enum {
         FILENAMELEN = 1024
 };
 
-/* Prototypes */
+static void     avoid_zombie_processes(void);
 static int      new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_context *ui_ctx, struct opts_options *opts);
 
 int
@@ -61,6 +62,7 @@ main(int argc, char **argv)
                 errx(EX_SOFTWARE, "could not open ui context");
         if ((oggfiles = malloc(opts.choices * sizeof(struct ogg_oggfile))) == NULL)
                 err(EX_SOFTWARE, "could not malloc oggfiles");
+        avoid_zombie_processes();
 
         oggfileno = 0;
         while (fgets(filename, FILENAMELEN, stdin) != NULL) {
@@ -140,4 +142,17 @@ new_turn(struct ogg_oggfile *oggfiles, struct plr_context *plr_ctx, struct ui_co
                 return (1);
 
         return (0);
+}
+
+static void
+avoid_zombie_processes()
+{
+        struct sigaction sa;
+
+        sa.sa_handler = SIG_IGN;
+        sa.sa_flags = 0;
+        sigemptyset(&(sa.sa_mask));
+        sigaddset(&(sa.sa_mask), SIGPIPE);
+
+        sigaction(SIGPIPE, &sa, NULL);
 }
