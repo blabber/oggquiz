@@ -153,7 +153,7 @@ avoid_zombie_processes()
         sa.sa_handler = SIG_IGN;
         sa.sa_flags = 0;
         sigemptyset(&(sa.sa_mask));
-        sigaddset(&(sa.sa_mask), SIGPIPE);
+        sigaddset(&(sa.sa_mask), SIGCHLD);
 
-        sigaction(SIGPIPE, &sa, NULL);
+        sigaction(SIGCHLD, &sa, NULL);
 }
