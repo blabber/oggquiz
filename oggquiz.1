@@ -1,0 +1,173 @@
+.\"
+.\"  "THE BEER-WARE LICENSE" (Revision 42):
+.\"  <tobias.rehbein@web.de> wrote this file. As long as you retain this notice
+.\"  you can do whatever you want with this stuff. If we meet some day, and you
+.\"  think this stuff is worth it, you can buy me a beer in return.
+.\"                                                               Tobias Rehbein
+.\"  
+.
+.Dd March 25, 2009
+.Os 
+.Dt OGGQUIZ 1
+.
+.Sh NAME
+.
+.Nm oggquiz
+.Nd a simple quiz on songs from your ogg/vorbis collection
+.
+.
+.Sh SYNOPSIS
+.
+.Nm
+.Op Fl t | Fl -time Ar seconds
+.Op Fl c | Fl -choices Ar choices
+.Op Fl p | Fl -players Ar players
+.Op Fl o | Fl -ogg123-options Ar options
+.Op Fl O | Fl -ogg123 Ar command
+.Pp
+.Nm
+.Brq Fl h | Fl -help
+.
+.
+.Sh DESCRIPTION
+.
+.Nm
+is played in turns. Each turn one song is played and the current player is asked
+which song he is listening to. This is done in a multiple choice manner.
+.Pp
+The faster the player answers the less points he gets added to his current
+score. If the player gives the wrong answer or waits too long he gets the
+maximum amount of possible points added to his score.
+.Pp
+The player with the least points wins.
+.
+.
+.Sh OPTIONS
+.
+.Bl -tag
+.It Fl t | Fl -time Ar seconds
+Sets the time each player has to make his guess. Also determines the maximum
+score which equals
+.Ar seconds .
+The default is 60.
+.
+.It Fl c | Fl choices Ar choices
+Determines how many possible answers are presented to the player. The default is 4.
+.Ar choices
+must not exceed 4 and must not be less than 1. The default is 4.
+.
+.It Fl p | Fl -players Ar players
+Determines how many players are playing the game.
+.Ar players
+must not exceed 4 and must not be less than 1. The default is 4.
+.
+.It Fl o | Fl -ogg123-options Ar options
+The given
+.Ar options
+are passed on to ogg123.
+.
+.It Fl O | Fl -ogg123 Ar command
+The explicit command used to invoke ogg123. Might be another player as as it
+supports ogg/vorbis and provides a
+.Fl q 
+flag with the same semantics as ogg123's
+.FL q 
+flag . The default is
+.Dq /usr/local/bin/ogg123 .
+.
+.It Fl h | Fl -help
+Print the synopsis of
+.Nm
+and exit. This overrides any other options.
+.
+.El
+.
+.
+.Sh HOW IT WORKS
+.
+.Nm
+Reads a randomized list of ogg/vorbis files from stdin. Having read
+.Ar choices
+(see OPTIONS) files it stops and picks one of the just read songs
+and plays it via ogg123. It then presents the current player with a list of the
+read songs and asks which one is playing.
+.Pp
+If the player gives the wrong answer he gets the full
+.Ar seconds
+(see OPTIONS) added to his score.
+.Pp
+If the player gives the correct answer and he used less then
+.Ar seconds
+(see OPTIONS) seconds to give the answer he gets the amount of
+seconds he used added to his score. If the player uses more than
+.Ar seconds
+(see OPTIONS) seconds to give the answer he gets the same points as
+if he had given the wrong answer.
+.Pp
+After each turn a scoreboard is displayed. Always remember that the player with
+the lowest score wins.
+.Pp
+.Nm 
+has no real end. It ends if no more songs can be read from stdin or if one of
+the players decides to press the 'q' button and quit the game.
+.
+.
+.Sh ENVIRONMENT
+.
+.Nm
+peruses the
+.Ev LANG
+and
+.Ev LC_ALL
+environment variables to determine the systems locale.
+.
+.Sh EXAMPLES
+.
+I start my games like this:
+.Pp
+.Dl find /my/music -type f -name '*.ogg' | random -l -f - | oggquiz
+.
+.
+.Sh PORTABILITY
+.
+.Nm
+was written in ANSI/C so it should compile on every unix-like platform
+supporting an ANSI/C compiler and libvorbis. But this was written on a 
+.Fx
+system and has not been tested on other platforms. 
+.Pp
+The supplied Makefile is a BSD-style Makefile and uses the 
+.Fx
+infrastructure. This is not portable, but as 
+.Nm
+is pretty simple there should be no problem to write a simple Makefile for
+other platforms.
+.
+.
+.Sh DIAGNOSTICS
+.
+Messages should be self-explanatory.
+.Pp
+.Ex -std
+.
+.
+.Sh SEE ALSO
+.
+.Xr ogg123 1 ,
+.Xr environ 7
+.
+.
+.Sh AUTHORS
+.
+.An "Tobias Rehbein" Aq tobias.rehbein@web.de
+.
+.
+.Sh BUGS
+.
+.Nm
+doesn't explicitly support wide or multibyte characters.
+.Pp
+If you find a bug drop me a mail or file an issue at 
+.Dl http://github.com/tobreh/oggquiz/issues
+.
+.

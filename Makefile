@@ -1,6 +1,5 @@
 PROG=		oggquiz
 SRCS=		${PROG}.c oggfile.c player.c ui.c options.c
-NO_MAN=         yes
 
 CSTD?=		c89
 WARNS?=		6
@@ -19,4 +18,11 @@ LDADD+=		-lcurses
 CLEANFILES=	*.[Bb][Aa][Kk] *.core
 CTAGS=		ctags
 
+COL=		/usr/bin/col
+
+all:		README
+
 .include <bsd.prog.mk>
+
+README:	${MAN1}
+	${MROFF_CMD} ${MAN1} | ${COL} -bx > ${.TARGET}
