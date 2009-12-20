@@ -52,7 +52,8 @@ score which equals
 The default is 60.
 .
 .It Fl c | Fl choices Ar choices
-Determines how many possible answers are presented to the player. The default is 4.
+Determines how many possible answers are presented to the player. The default
+is 4.
 .Ar choices
 must not exceed 4 and must not be less than 1. The default is 4.
 .
@@ -88,9 +89,9 @@ and exit. This overrides any other options.
 .Nm
 Reads a randomized list of ogg/vorbis files from stdin. Having read
 .Ar choices
-(see OPTIONS) files it stops and picks one of the just read songs
-and plays it via ogg123. It then presents the current player with a list of the
-read songs and asks which one is playing.
+(see OPTIONS) files it stops and picks one of the just read songs and plays it
+via ogg123. It then presents the current player with a list of the read songs
+and asks which one is playing.
 .Pp
 If the player gives the wrong answer he gets the full
 .Ar seconds
@@ -98,11 +99,11 @@ If the player gives the wrong answer he gets the full
 .Pp
 If the player gives the correct answer and he used less then
 .Ar seconds
-(see OPTIONS) seconds to give the answer he gets the amount of
-seconds he used added to his score. If the player uses more than
+(see OPTIONS) seconds to give the answer he gets the amount of seconds he used
+added to his score. If the player uses more than
 .Ar seconds
-(see OPTIONS) seconds to give the answer he gets the same points as
-if he had given the wrong answer.
+(see OPTIONS) seconds to give the answer he gets the same points as if he had
+given the wrong answer.
 .Pp
 After each turn a scoreboard is displayed. Always remember that the player with
 the lowest score wins.
