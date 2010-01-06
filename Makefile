@@ -1,5 +1,6 @@
 PROG=		oggquiz
 SRCS=		${PROG}.c oggfile.c player.c ui.c options.c
+MAN6=		${PROG}.6
 
 CSTD?=		c89
 WARNS?=		6
@@ -24,5 +25,5 @@ all:		README
 
 .include <bsd.prog.mk>
 
-README:	${MAN1}
-	${MROFF_CMD} ${MAN1} | ${COL} -bx > ${.TARGET}
+README:	${MAN6}
+	${MROFF_CMD} ${MAN6} | ${COL} -bx > ${.TARGET}
