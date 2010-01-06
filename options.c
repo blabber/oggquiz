@@ -22,6 +22,7 @@ enum {
         PLAYERS = 4
 };
 
+static const char *VERSION = "v1.0.0";
 static const char *OGG123 = "/usr/local/bin/ogg123";
 static const char *OGG123_OPTIONS = "";
 
@@ -93,6 +94,7 @@ opts_parse_options(struct opts_options *opts, int argc, char **argv)
 static void
 print_usage()
 {
+        printf("This is oggquiz %s\n\n", VERSION);
         printf("oggquiz [-t | --time seconds] [-c | --choices choices] [-p | --players players]\n");
         printf("        [-o | --ogg123-options options] [-O | --ogg123 command]\n\n");
         printf("oggquiz {-h | --help}\n");
