@@ -41,10 +41,13 @@ plr_context_open(char const *ogg123, char const *ogg123_options)
         ctx->ogg123[len] = '\0';
 
         len = strlen(ogg123_options);
-        if ((ctx->ogg123_options = malloc(len + 1)) == NULL)
-                err(EX_SOFTWARE, "could not malloc plr_ctx->ogg123_options");
-        strncpy(ctx->ogg123_options, ogg123_options, len);
-        ctx->ogg123_options[len] = '\0';
+        if (len > 0) {
+                if ((ctx->ogg123_options = malloc(len + 1)) == NULL)
+                        err(EX_SOFTWARE, "could not malloc plr_ctx->ogg123_options");
+                strncpy(ctx->ogg123_options, ogg123_options, len);
+                ctx->ogg123_options[len] = '\0';
+        } else
+                ctx->ogg123_options = NULL;
 
         ctx->pid = (pid_t) - 1;
 
@@ -73,7 +76,7 @@ plr_play(struct plr_context *ctx, char *ogg)
 
         switch (lpid = fork()) {
         case (0):
-                execl(ctx->ogg123, ctx->ogg123, ctx->ogg123_options, "-q", ogg, NULL);
+                execl(ctx->ogg123, ctx->ogg123, "-q", ogg, ctx->ogg123_options, NULL);
                 err(EX_OSERR, "could not exec %s", ctx->ogg123);
         case (-1):
                 err(EX_OSERR, "could not fork player");
