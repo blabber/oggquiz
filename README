@@ -38,7 +38,8 @@ OPTIONS
                  4.
 
      -o | --ogg123-options options
-                 The given options are passed on to ogg123.
+                 The given options are passed on to ogg123. This option should
+                 be used with care as no sanity checking is performed.
 
      -O | --ogg123 command
                  The explicit command used to invoke ogg123. Might be another
@@ -51,7 +52,7 @@ OPTIONS
                  other options.
 
 HOW IT WORKS
-     oggquiz Reads a randomized list of ogg/vorbis files from stdin. Having
+     oggquiz reads a randomized list of ogg/vorbis files from stdin. Having
      read choices (see OPTIONS) files it stops and picks one of the just read
      songs and plays it via ogg123. It then presents the current player with a
      list of the read songs and asks which one is playing.
@@ -102,8 +103,6 @@ AUTHORS
      Tobias Rehbein <tobias.rehbein@web.de>
 
 BUGS
-     oggquiz doesn't explicitly support wide or multibyte characters.
-
      If you find a bug drop me a mail or file an issue at
            http://github.com/tobreh/oggquiz/issues
 

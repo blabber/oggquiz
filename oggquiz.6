@@ -65,7 +65,8 @@ must not exceed 4 and must not be less than 1. The default is 4.
 .It Fl o | Fl -ogg123-options Ar options
 The given
 .Ar options
-are passed on to ogg123.
+are passed on to ogg123. This option should be used with care as no sanity
+checking is performed.
 .
 .It Fl O | Fl -ogg123 Ar command
 The explicit command used to invoke ogg123. Might be another player as as it
@@ -87,7 +88,7 @@ and exit. This overrides any other options.
 .Sh HOW IT WORKS
 .
 .Nm
-Reads a randomized list of ogg/vorbis files from stdin. Having read
+reads a randomized list of ogg/vorbis files from stdin. Having read
 .Ar choices
 (see OPTIONS) files it stops and picks one of the just read songs and plays it
 via ogg123. It then presents the current player with a list of the read songs
@@ -165,9 +166,6 @@ Messages should be self-explanatory.
 .
 .Sh BUGS
 .
-.Nm
-doesn't explicitly support wide or multibyte characters.
-.Pp
 If you find a bug drop me a mail or file an issue at 
 .Dl http://github.com/tobreh/oggquiz/issues
 .
