@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include <err.h>
+#include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
@@ -89,7 +90,7 @@ void
 plr_stop(struct plr_context *ctx)
 {
         if (ctx->pid != (pid_t) (-1)) {
-                if (kill(ctx->pid, SIGHUP))
+                if ((kill(ctx->pid, SIGHUP) == -1) && (errno != ESRCH))
                         err(EX_OSERR, "could not kill running player: %d", ctx->pid);
                 ctx->pid = -1;
         }
