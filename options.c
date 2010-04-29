@@ -22,7 +22,7 @@ enum {
         PLAYERS = 4
 };
 
-static const char *VERSION = "v1.0.0";
+static const char *VERSION = "v1.0.1";
 static const char *OGG123 = "/usr/local/bin/ogg123";
 static const char *OGG123_OPTIONS = "";
 
