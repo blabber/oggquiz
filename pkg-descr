@@ -1,0 +1,11 @@
+oggquiz is played in turns. Each turn one song is played and the current player
+is asked which song he is listening to. This is done in a multiple choice
+manner.
+
+The faster the player answers the less points he gets added to his current
+score. If the player gives the wrong answer or waits too long he gets the
+maximum amount of possible points added to his score.
+
+The player with the least points wins.
+
+WWW:	http://github.com/tobreh/oggquiz
