@@ -84,6 +84,7 @@ main(int argc, char **argv)
         ui_context_close(ui_ctx);
         if (ogg_context_close(ogg_ctx) != 0)
                 warn("could not close oggfile context");
+        free(oggfiles);
 
         return (0);
 }
