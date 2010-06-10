@@ -16,11 +16,6 @@
 
 #include "oggfile.h"
 
-#define SAFE_STRNCPY(dst, src, len)     do {                                    \
-                                                strncpy(dst, src, (len)-1);     \
-                                                dst[(len)-1] = '\0';            \
-                                        } while (0)
-
 struct ogg_context {
         iconv_t         cd;
 };
@@ -35,7 +30,9 @@ ogg_oggfile_create(struct ogg_context *ctx, struct ogg_oggfile *ogg, char *filen
         assert(ogg != NULL);
         assert(filename != NULL);
 
-        SAFE_STRNCPY(ogg->filename, filename, sizeof(ogg->filename));
+        strncpy(ogg->filename, filename, sizeof(ogg->filename) - 1);
+        ogg->filename[sizeof(ogg->filename) - 1] = '\0';
+
         if (fill_comments(ctx, ogg) != 0)
                 return (1);
 
