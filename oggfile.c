@@ -21,7 +21,7 @@ struct ogg_context {
 };
 
 static int      fill_comments(struct ogg_context *ctx, struct ogg_oggfile *ogg);
-static void     do_iconv(struct ogg_context *ctx, char *in, char *out, size_t outlen);
+static void     do_iconv(struct ogg_context *ctx, const char *in, char *out, size_t outlen);
 
 int
 ogg_oggfile_create(struct ogg_context *ctx, struct ogg_oggfile *ogg, char *filename)
@@ -108,10 +108,10 @@ ogg_context_close(struct ogg_context *ctx)
 }
 
 static void
-do_iconv(struct ogg_context *ctx, char *in, char *out, size_t outlen)
+do_iconv(struct ogg_context *ctx, const char *in, char *out, size_t outlen)
 {
-        char          **inp;
-        char          **outp;
+        const char     *inp;
+        char           *outp;
         size_t          inlen = strlen(in);
 
         assert(ctx != NULL);
@@ -119,16 +119,16 @@ do_iconv(struct ogg_context *ctx, char *in, char *out, size_t outlen)
         assert(out != NULL);
         assert(outlen > 0);
 
-        inp = &in;
-        outp = &out;
+        inp = in;
+        outp = out;
 
-        if (iconv(ctx->cd, NULL, NULL, outp, &outlen) == (size_t) (-1))
+        if (iconv(ctx->cd, NULL, NULL, &outp, &outlen) == (size_t) (-1))
                 errx(EX_SOFTWARE, "could not set initial conversion state");
 
         while (inlen > 0) {
-                if (iconv(ctx->cd, (const char **)inp, &inlen, outp, &outlen) == (size_t) (-1))
+                if (iconv(ctx->cd, &inp, &inlen, &outp, &outlen) == (size_t) (-1))
                         errx(EX_SOFTWARE, "string conversion failed");
         }
 
-        *outp[0] = '\0';
+        *outp = '\0';
 }

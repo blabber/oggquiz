@@ -73,7 +73,7 @@ main(int argc, char **argv)
         oggfileno = 0;
         while (fgets(filename, FILENAMELEN, stdin) != NULL) {
                 if ((newline = strchr(filename, '\n')) != NULL)
-                        newline[0] = '\0';
+                        *newline = '\0';
 
                 if (ogg_oggfile_create(ogg_ctx, &oggfiles[oggfileno], filename) == 0)
                         oggfileno++;
