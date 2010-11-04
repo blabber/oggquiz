@@ -5,7 +5,7 @@
 # $FreeBSD$
 
 PORTNAME=	oggquiz
-PORTVERSION=	1.1.0
+PORTVERSION=	1.1.1
 CATEGORIES=	games
 MASTER_SITES=	# No master site
 DISTFILES=	${PORTNAME}-${TAG}.tar
