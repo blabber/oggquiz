@@ -98,12 +98,16 @@ ui_display_quiz(struct ui_context *ctx, struct ui_model *model)
 static void
 print_header(int *y, char const *step, struct ui_model *model)
 {
+        int             round;
+
         assert(step != NULL);
         assert(model != NULL);
 
+        round = (model->turn - 1) / model->players + 1;
+
         attron(A_REVERSE);
-        mvprintw((*y)++, 0, " %s | current turn: %03d | current player: %d ",
-                 step, model->turn, model->current_player + 1);
+        mvprintw((*y)++, 0, " %s | current round: %03d | current player: %d ",
+                 step, round, model->current_player + 1);
         attroff(A_REVERSE);
 }
 
