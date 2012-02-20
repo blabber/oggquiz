@@ -92,7 +92,7 @@ opts_parse_options(struct opts_options *opts, int argc, char **argv)
 }
 
 static void
-print_usage()
+print_usage(void)
 {
         printf("This is oggquiz %s\n\n", VERSION);
         printf("oggquiz [-t | --time seconds] [-c | --choices choices] [-p | --players players]\n");

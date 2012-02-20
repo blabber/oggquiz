@@ -80,7 +80,7 @@ fill_comments(struct ogg_context *ctx, struct ogg_oggfile *ogg)
 }
 
 struct ogg_context *
-ogg_context_open()
+ogg_context_open(void)
 {
         struct ogg_context *ctx;
         iconv_t         cd;

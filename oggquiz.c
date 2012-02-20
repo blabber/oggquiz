@@ -174,7 +174,7 @@ destroy_ui_model(struct ui_model *model)
 }
 
 static void
-avoid_zombie_processes()
+avoid_zombie_processes(void)
 {
         struct sigaction sa;
 

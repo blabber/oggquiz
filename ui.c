@@ -182,7 +182,7 @@ ui_display_result(struct ui_context *ctx, struct ui_model *model)
 }
 
 char
-ui_get_key()
+ui_get_key(void)
 {
         int             in;
 
