@@ -13,7 +13,7 @@ NO_WERROR=	yes
 CFLAGS+=	-I/usr/local/include
 LDFLAGS+=	-L/usr/local/lib 
 LDADD+=		-lvorbisfile
-LDADD+=		-liconv
+LDADD+=		${libiconv}
 LDADD+=		-lcurses
 
 CLEANFILES=	*.[Bb][Aa][Kk] *.core
