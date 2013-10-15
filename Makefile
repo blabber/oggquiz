@@ -28,9 +28,6 @@ REPO?=		/path/to/repo/clone/
 TAG=		v${PORTVERSION}
 WRKSRC=		${WRKDIR}/${PORTNAME}-${TAG}
 
-PLIST_FILES=	bin/oggquiz
-MAN6=		oggquiz.6
-
 do-fetch:
 	( cd "${REPO}" \
 		&& ${LOCALBASE}/bin/git archive \
